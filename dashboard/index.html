@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Dashboard — Mon, Apr 06</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card2: #21253a;
+    --accent: #6c63ff;
+    --accent2: #00d4aa;
+    --text: #e0e0e0;
+    --muted: #888;
+    --border: #2a2d3a;
+    --green: #4caf50;
+    --red: #f44336;
+    --yellow: #ff9800;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container { max-width: 900px; margin: 0 auto; }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  header h1 { font-size: 1.5rem; color: var(--accent); }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .refresh-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+  .refresh-btn:hover { opacity: 0.85; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--border);
+  }
+  .card-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .weather-current {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .weather-temp {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .weather-desc { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
+  .forecast {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .forecast-day {
+    background: var(--card2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    flex: 1;
+    min-width: 90px;
+    text-align: center;
+  }
+  .forecast-date { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+  .forecast-desc { font-size: 0.8rem; margin-bottom: 6px; }
+  .forecast-temps { font-weight: 600; font-size: 0.9rem; }
+  .temp-high { color: var(--yellow); margin-right: 6px; }
+  .temp-low { color: #90caf9; }
+  .news-item {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+    line-height: 1.4;
+  }
+  .news-item:last-child { border-bottom: none; }
+  .news-num {
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+    min-width: 18px;
+  }
+  .news-text { color: var(--text); }
+  .schedule-text, .standup-text {
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 0.82rem;
+    white-space: pre-wrap;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .placeholder {
+    color: var(--muted);
+    font-style: italic;
+    font-size: 0.88rem;
+  }
+  .crypto-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .crypto-item {
+    background: var(--card2);
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .crypto-name { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+  .crypto-price { font-size: 1.2rem; font-weight: 700; }
+  .crypto-change { font-size: 0.8rem; margin-top: 4px; }
+  .change-up { color: var(--green); }
+  .change-down { color: var(--red); }
+  .stats-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-value { font-size: 1.1rem; font-weight: 600; color: var(--accent2); }
+  .full-width { grid-column: 1 / -1; }
+  .footer {
+    text-align: center;
+    margin-top: 24px;
+    color: var(--muted);
+    font-size: 0.75rem;
+  }
+  @media (max-width: 480px) {
+    body { padding: 12px; }
+    header h1 { font-size: 1.2rem; }
+    .crypto-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>☀️ Daily Dashboard</h1>
+    <div class="header-right">
+      <span id="last-updated">Updated: 2026-04-06 11:58:48 HKT</span>
+      <button class="refresh-btn" onclick="location.reload()">🔄 Refresh</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- Weather -->
+    <div class="card">
+      <div class="card-title">🌤 Weather — Hong Kong</div>
+      <div class="weather-current">
+        <div class="weather-temp">27°C</div>
+        <div class="weather-desc">Light rain shower<br>💧 79% · 💨 18 km/h</div>
+      </div>
+      <div class="forecast">
+        <div class="forecast-day">
+            <div class="forecast-date">Mon, Apr 06</div>
+            <div class="forecast-desc">Partly Cloudy </div>
+            <div class="forecast-temps">
+                <span class="temp-high">24°</span>
+                <span class="temp-low">23°</span>
+            </div>
+        </div>
+        <div class="forecast-day">
+            <div class="forecast-date">Tue, Apr 07</div>
+            <div class="forecast-desc">Mist</div>
+            <div class="forecast-temps">
+                <span class="temp-high">25°</span>
+                <span class="temp-low">23°</span>
+            </div>
+        </div>
+        <div class="forecast-day">
+            <div class="forecast-date">Wed, Apr 08</div>
+            <div class="forecast-desc">Patchy rain nearby</div>
+            <div class="forecast-temps">
+                <span class="temp-high">22°</span>
+                <span class="temp-low">21°</span>
+            </div>
+        </div></div>
+    </div>
+
+    <!-- Crypto -->
+    <div class="card">
+      <div class="card-title">💹 Crypto Prices</div>
+      <div class="crypto-grid">
+        <div class="crypto-item">
+          <div class="crypto-name">Bitcoin BTC</div>
+          <div class="crypto-price">$69,077</div>
+          <div class="crypto-change change-up">
+            ▲ +2.92%
+          </div>
+        </div>
+        <div class="crypto-item">
+          <div class="crypto-name">Ethereum ETH</div>
+          <div class="crypto-price">$2,128</div>
+          <div class="crypto-change change-up">
+            ▲ +3.50%
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- News -->
+    <div class="card">
+      <div class="card-title">📰 Crypto/Tech News</div>
+      <div><div class="news-item"><span class="news-num">1</span><span class="news-text">Whats your crypto currency Bitcoin ethereum Dash litecoin trading strategy?</span></div><div class="news-item"><span class="news-num">2</span><span class="news-text">Ask HN: Cheapest computation resources?</span></div><div class="news-item"><span class="news-num">3</span><span class="news-text">BTC Price Correlations to Product Hunt Post Trends Data</span></div><div class="news-item"><span class="news-num">4</span><span class="news-text">Ask HN: Building a universal SaaS billing solution for entrepreneurs</span></div><div class="news-item"><span class="news-num">5</span><span class="news-text">Show HN: OXH AI – Open-Source AI Crypto Signal Platform with Real-Time Analysis</span></div></div>
+    </div>
+
+    <!-- Schedule -->
+    <div class="card">
+      <div class="card-title">📅 Today's Schedule</div>
+      <div class="section-content placeholder">No ~/daily-schedule.txt found. Create it to show your schedule.</div>
+    </div>
+
+    <!-- Standup -->
+    <div class="card full-width">
+      <div class="card-title">✅ Daily Standup</div>
+      <div class="section-content"><pre class="standup-text">[VV]
+  Yesterday: Set up QMD memory, agent-browser skill, tech research, morning brief, daily proposer, self-improving memory system
+  Today: Monitoring workflows, ready to assist, continuing improvements
+  Blockers: None 🎉</pre></div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="card">
+      <div class="card-title">⚡ Quick Stats</div>
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-label">Time (HK)</span>
+          <span class="stat-value">11:58:48</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Day</span>
+          <span class="stat-value">Monday</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Date</span>
+          <span class="stat-value">06 Apr 2026</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Week</span>
+          <span class="stat-value">Week 15</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Run <code>bash skills/daily-dashboard/generate.sh</code> to refresh data<br>
+    File location: /home/yat121/.openclaw/workspace/skills/daily-dashboard/index.html
+  </div>
+</div>
+</body>
+</html>
