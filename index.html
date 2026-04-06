@@ -1,1444 +1,291 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>HK Specialty Coffee Map</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:        #1a1209;
-      --bg-card:   #2a1e0e;
-      --bg-input:  #362810;
-      --border:    #5a3e1e;
-      --text:      #e8d5b0;
-      --text-dim:  #a08060;
-      --accent:    #c8884a;
-      --accent2:   #8b5e34;
-      --cream:     #f5e6c8;
-      --syp:       #c8884a;
-      --hku:       #a06830;
-      --kt:        #7a4820;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      min-height: 100vh;
-      -webkit-text-size-adjust: 100%;
-    }
-
-    /* ── HEADER ── */
-    header {
-      background: linear-gradient(160deg, #2d1a08 0%, #1a1209 100%);
-      border-bottom: 1px solid var(--border);
-      padding: 1.5rem 1rem 1.2rem;
-      text-align: center;
-    }
-
-    header .eyebrow {
-      font-size: 0.65rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 0.4rem;
-      font-weight: 500;
-    }
-
-    header h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(1.5rem, 6vw, 2.5rem);
-      color: var(--cream);
-      line-height: 1.15;
-      margin-bottom: 0.4rem;
-    }
-
-    header h1 span { color: var(--accent); }
-
-    header p {
-      color: var(--text-dim);
-      font-size: 0.8rem;
-      max-width: 480px;
-      margin: 0 auto;
-      line-height: 1.55;
-    }
-
-    header .credit {
-      color: var(--text-dim);
-      font-size: 0.75rem;
-      max-width: 480px;
-      margin: 0.5rem auto 0;
-      opacity: 0.7;
-      font-style: italic;
-    }
-
-    /* ── LIVE CLOCK ── */
-    .live-clock {
-      text-align: center;
-      padding: 0.5rem 1rem 0.3rem;
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-
-    .live-clock .clock-time {
-      font-size: 0.78rem;
-      color: var(--text-dim);
-      font-weight: 500;
-      letter-spacing: 0.05em;
-    }
-
-    .live-clock .clock-time span {
-      color: var(--accent);
-    }
-    #refreshClock {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--text-dim);
-      font-size: 0.85rem;
-      padding: 2px 6px;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-left: 4px;
-      vertical-align: middle;
-    }
-    #refreshClock:hover { background: var(--bg-input); }
-
-    /* ── FILTER TABS ── */
-    .filters {
-      display: flex;
-      gap: 0.4rem;
-      justify-content: flex-start;
-      overflow-x: auto;
-      padding: 1rem 1rem;
-      background: var(--bg);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      border-bottom: 1px solid var(--border);
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-
-    .filters::-webkit-scrollbar { display: none; }
-
-    .filter-btn {
-      flex-shrink: 0;
-      padding: 0.4rem 1rem;
-      border-radius: 100px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--text-dim);
-      font-family: 'Inter', sans-serif;
-      font-size: 0.78rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      letter-spacing: 0.02em;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-    .filter-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-    }
-
-    /* ── LAYOUT ── */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 1rem;
-    }
-
-    /* ── MAP ── */
-    #map {
-      height: 300px;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      margin-bottom: 1.5rem;
-      z-index: 1;
-      touch-action: pan;
-    }
-
-    /* Leaflet popup overrides */
-    .leaflet-popup-content-wrapper {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      color: var(--text);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-    }
-
-    .leaflet-popup-tip { background: var(--bg-card); }
-
-    .leaflet-popup-content .popup-name {
-      font-family: 'Playfair Display', serif;
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--cream);
-      margin-bottom: 0.2rem;
-    }
-
-    .leaflet-popup-content .popup-area {
-      font-size: 0.72rem;
-      color: var(--accent);
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .leaflet-container a.leaflet-popup-close-button { color: var(--text-dim); }
-
-    /* ── SECTION TITLE ── */
-    .section-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.2rem;
-      color: var(--cream);
-      margin-bottom: 0.8rem;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-
-    .section-title::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
-    /* ── CAFE GRID ── */
-    .cafe-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1rem;
-    }
-
-    /* ── CAFE CARD ── */
-    .cafe-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      transition: transform 0.2s, box-shadow 0.2s, opacity 0.3s;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .cafe-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-    }
-
-    .cafe-card.hidden { display: none; }
-
-    .card-img {
-      width: 100%;
-      height: 170px;
-      object-fit: cover;
-      display: block;
-    }
-
-    .card-body {
-      padding: 0.9rem 1rem 1rem;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 0.35rem;
-      gap: 0.4rem;
-    }
-
-    .card-name-row {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      flex: 1;
-      min-width: 0;
-    }
-
-    .card-name {
-      font-family: 'Playfair Display', serif;
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--cream);
-      line-height: 1.25;
-      flex: 1;
-      min-width: 0;
-    }
-
-    /* ── BUSYNESS INDICATOR ── */
-    .busyness {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      padding: 0.12rem 0.45rem;
-      border-radius: 100px;
-      font-size: 0.62rem;
-      font-weight: 600;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .busyness.red    { background: rgba(220,80,60,0.2);   color: #e05040; border: 1px solid rgba(220,80,60,0.4); }
-    .busyness.yellow { background: rgba(200,170,60,0.18);  color: #c8aa3c; border: 1px solid rgba(200,170,60,0.35); }
-    .busyness.green  { background: rgba(60,180,100,0.18);  color: #50c87a; border: 1px solid rgba(60,180,100,0.35); }
-
-    .busyness .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .busyness.red    .dot { background: #e05040; box-shadow: 0 0 4px #e05040aa; }
-    .busyness.yellow .dot { background: #c8aa3c; box-shadow: 0 0 4px #c8aa3caa; }
-    .busyness.green  .dot { background: #50c87a; box-shadow: 0 0 4px #50c87aaa; }
-
-    .area-tag {
-      flex-shrink: 0;
-      padding: 0.18rem 0.5rem;
-      border-radius: 100px;
-      font-size: 0.62rem;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-
-    .area-tag.syp { background: rgba(200,136,74,0.2); color: var(--syp); border: 1px solid rgba(200,136,74,0.4); }
-    .area-tag.hku { background: rgba(160,104,48,0.2); color: var(--hku); border: 1px solid rgba(160,104,48,0.4); }
-    .area-tag.kt  { background: rgba(122,72,32,0.2);  color: var(--kt);  border: 1px solid rgba(122,72,32,0.4); }
-
-    .card-address {
-      font-size: 0.72rem;
-      color: var(--text-dim);
-      margin-bottom: 0.35rem;
-      line-height: 1.4;
-    }
-
-    /* ── OPERATING HOURS ── */
-    .card-hours {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.4rem;
-      margin-bottom: 0.5rem;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.35rem 0.55rem;
-    }
-
-    .card-hours .clock-icon {
-      font-size: 0.7rem;
-      flex-shrink: 0;
-      margin-top: 0.05rem;
-      opacity: 0.7;
-    }
-
-    .card-hours .hours-lines {
-      display: flex;
-      flex-direction: column;
-      gap: 0.1rem;
-    }
-
-    .card-hours .hours-line {
-      font-size: 0.67rem;
-      color: var(--text-dim);
-      line-height: 1.3;
-    }
-
-    .card-hours .hours-line .day-label {
-      color: var(--accent);
-      font-weight: 600;
-      margin-right: 0.2rem;
-    }
-
-    .card-hours .hours-line.unconfirmed {
-      font-style: italic;
-      opacity: 0.7;
-    }
-
-    .card-desc {
-      font-size: 0.78rem;
-      color: var(--text);
-      line-height: 1.55;
-      margin-bottom: 0.7rem;
-      flex: 1;
-    }
-
-    /* ── GOOGLE MAPS RATING BADGE ── */
-    .gm-rating {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.2rem;
-      font-size: 0.68rem;
-      color: var(--text-dim);
-      margin-left: 0.35rem;
-      flex-shrink: 0;
-    }
-
-    .gm-rating .star {
-      color: #f4b740;
-      font-size: 0.72rem;
-    }
-
-    .gm-rating.no-rating {
-      font-size: 0.62rem;
-      color: #5a4a30;
-      font-style: italic;
-    }
-
-    /* ── DIRECTIONS BUTTON ── */
-    .directions-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-      width: 100%;
-      margin-top: 0.6rem;
-      padding: 0.45rem 0.75rem;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--accent);
-      font-family: 'Inter', sans-serif;
-      font-size: 0.72rem;
-      font-weight: 500;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.2s, border-color 0.2s, color 0.2s;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .directions-btn:hover,
-    .directions-btn:focus {
-      background: rgba(200, 136, 74, 0.15);
-      border-color: var(--accent);
-      color: var(--accent);
-      outline: none;
-    }
-
-    .specialties {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.3rem;
-    }
-
-    .specialty-chip {
-      padding: 0.15rem 0.45rem;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 100px;
-      font-size: 0.65rem;
-      color: var(--text-dim);
-      font-weight: 400;
-    }
-
-    /* ── NO RESULTS ── */
-    .no-results {
-      display: none;
-      text-align: center;
-      padding: 2.5rem 1rem;
-      color: var(--text-dim);
-      font-size: 0.85rem;
-    }
-
-    .no-results.visible { display: block; }
-
-    /* ── FOOTER ── */
-    footer {
-      text-align: center;
-      padding: 1.5rem 1rem;
-      border-top: 1px solid var(--border);
-      margin-top: 2rem;
-      color: var(--text-dim);
-      font-size: 0.7rem;
-    }
-
-    footer .footer-busyness {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      margin-bottom: 0.5rem;
-      flex-wrap: wrap;
-    }
-
-    .footer-legend {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      font-size: 0.65rem;
-      color: var(--text-dim);
-    }
-
-    .footer-legend .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-    }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 600px) {
-      .cafe-grid {
-        grid-template-columns: 1fr;
-        gap: 0.8rem;
-      }
-      #map {
-        height: 260px;
-        border-radius: 10px;
-      }
-      .container {
-        padding: 0.75rem;
-      }
-      .card-img {
-        height: 150px;
-      }
-      .card-body {
-        padding: 0.75rem 0.85rem 0.85rem;
-      }
-      .filters {
-        padding: 0.8rem 0.75rem;
-      }
-    }
-
-    @media (min-width: 601px) {
-      #map { height: 380px; }
-      .container { padding: 1.5rem; }
-      .filters { justify-content: center; }
-    }
-
-    /* Touch-friendly map controls */
-    @media (hover: none) and (pointer: coarse) {
-      .leaflet-touch .leaflet-bar a {
-        width: 36px;
-        height: 36px;
-        line-height: 36px;
-        font-size: 18px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Dashboard — Mon, Apr 06</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card2: #21253a;
+    --accent: #6c63ff;
+    --accent2: #00d4aa;
+    --text: #e0e0e0;
+    --muted: #888;
+    --border: #2a2d3a;
+    --green: #4caf50;
+    --red: #f44336;
+    --yellow: #ff9800;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container { max-width: 900px; margin: 0 auto; }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  header h1 { font-size: 1.5rem; color: var(--accent); }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .refresh-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+  .refresh-btn:hover { opacity: 0.85; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--border);
+  }
+  .card-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .weather-current {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .weather-temp {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .weather-desc { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
+  .forecast {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .forecast-day {
+    background: var(--card2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    flex: 1;
+    min-width: 90px;
+    text-align: center;
+  }
+  .forecast-date { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+  .forecast-desc { font-size: 0.8rem; margin-bottom: 6px; }
+  .forecast-temps { font-weight: 600; font-size: 0.9rem; }
+  .temp-high { color: var(--yellow); margin-right: 6px; }
+  .temp-low { color: #90caf9; }
+  .news-item {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+    line-height: 1.4;
+  }
+  .news-item:last-child { border-bottom: none; }
+  .news-num {
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+    min-width: 18px;
+  }
+  .news-text { color: var(--text); }
+  .schedule-text, .standup-text {
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 0.82rem;
+    white-space: pre-wrap;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .placeholder {
+    color: var(--muted);
+    font-style: italic;
+    font-size: 0.88rem;
+  }
+  .crypto-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .crypto-item {
+    background: var(--card2);
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .crypto-name { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+  .crypto-price { font-size: 1.2rem; font-weight: 700; }
+  .crypto-change { font-size: 0.8rem; margin-top: 4px; }
+  .change-up { color: var(--green); }
+  .change-down { color: var(--red); }
+  .stats-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-value { font-size: 1.1rem; font-weight: 600; color: var(--accent2); }
+  .full-width { grid-column: 1 / -1; }
+  .footer {
+    text-align: center;
+    margin-top: 24px;
+    color: var(--muted);
+    font-size: 0.75rem;
+  }
+  @media (max-width: 480px) {
+    body { padding: 12px; }
+    header h1 { font-size: 1.2rem; }
+    .crypto-grid { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
 <body>
-
-<header>
-  <p class="eyebrow">Hong Kong Specialty Coffee</p>
-  <h1>The Best Cafés in <span>Western District</span></h1>
-  <p>Handpicked specialty coffee spots across Sai Ying Pun, HKU &amp; Kennedy Town — brews, pour-overs, and third-wave craft in one map.</p>
-  <p class="credit">A project by <strong>Desmond Ho</strong> · Powered by VV 🍫</p>
-</header>
-
-<div class="live-clock">
-  <div class="clock-time">🇭🇰 <span id="hkTime">--:--</span> &nbsp;·&nbsp; Hong Kong &nbsp;<button id="refreshClock" onclick="updateBusyness();document.getElementById('hkTime').textContent=(()=>{const n=new Date();const h=(n.getUTCHours()+8)%24;const m=n.getUTCMinutes();return`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;})();" title="Refresh">🔄</button></div>
-  <div class="clock-time" id="busynessHint"></div>
-</div>
-
-<div class="filters">
-  <button class="filter-btn active" data-filter="all">All</button>
-  <button class="filter-btn" data-filter="syp">Sai Ying Pun</button>
-  <button class="filter-btn" data-filter="hku">HKU / Shek Tong Tsui</button>
-  <button class="filter-btn" data-filter="kt">Kennedy Town</button>
-</div>
-
 <div class="container">
-  <div id="map"></div>
+  <header>
+    <h1>☀️ Daily Dashboard</h1>
+    <div class="header-right">
+      <span id="last-updated">Updated: 2026-04-06 11:58:48 HKT</span>
+      <button class="refresh-btn" onclick="location.reload()">🔄 Refresh</button>
+    </div>
+  </header>
 
-  <h2 class="section-title">All Cafés</h2>
-  <div class="no-results" id="noResults">No cafés match this filter.</div>
-  <div class="cafe-grid" id="cafeGrid">
+  <div class="grid">
+    <!-- Weather -->
+    <div class="card">
+      <div class="card-title">🌤 Weather — Hong Kong</div>
+      <div class="weather-current">
+        <div class="weather-temp">27°C</div>
+        <div class="weather-desc">Light rain shower<br>💧 79% · 💨 18 km/h</div>
+      </div>
+      <div class="forecast">
+        <div class="forecast-day">
+            <div class="forecast-date">Mon, Apr 06</div>
+            <div class="forecast-desc">Partly Cloudy </div>
+            <div class="forecast-temps">
+                <span class="temp-high">24°</span>
+                <span class="temp-low">23°</span>
+            </div>
+        </div>
+        <div class="forecast-day">
+            <div class="forecast-date">Tue, Apr 07</div>
+            <div class="forecast-desc">Mist</div>
+            <div class="forecast-temps">
+                <span class="temp-high">25°</span>
+                <span class="temp-low">23°</span>
+            </div>
+        </div>
+        <div class="forecast-day">
+            <div class="forecast-date">Wed, Apr 08</div>
+            <div class="forecast-desc">Patchy rain nearby</div>
+            <div class="forecast-temps">
+                <span class="temp-high">22°</span>
+                <span class="temp-low">21°</span>
+            </div>
+        </div></div>
+    </div>
 
-    <!-- Card 1 - SYP -->
-    <div class="cafe-card" data-area="syp">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwernqqRpy5MB9kgFmEPdPp62PGDqthrqKKeD776MSi3Vl5ekH6GLsw7xJYddD5iG4GNjSWwwGg9S6t5oZ8x8mACO5Ey4dFleqvyvSNwfiG716yTBfhrhvEY7dzBM62I7NyGn4V6_7Q=w400-h300-k-no" alt="Accro Coffee">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">Accro Coffee</div>
-            <div class="busyness" id="busy-accro"></div>
-          </div>
-          <span class="area-tag syp">Sai Ying Pun</span>
-          <span class="gm-rating"><span class="star">⭐</span> 4.4</span>
-        </div>
-        <div class="card-address">Shop 2, G/F, 36 Third Street, Sai Ying Pun</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line unconfirmed">Hours not confirmed</div>
+    <!-- Crypto -->
+    <div class="card">
+      <div class="card-title">💹 Crypto Prices</div>
+      <div class="crypto-grid">
+        <div class="crypto-item">
+          <div class="crypto-name">Bitcoin BTC</div>
+          <div class="crypto-price">$69,077</div>
+          <div class="crypto-change change-up">
+            ▲ +2.92%
           </div>
         </div>
-        <div class="card-desc">One of HK's OG specialty coffee pioneers. Compact and buzzy, with exceptional espresso and seasonal single-origins sourced from local roasters. The flat white is legendary.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Single Origin Espresso</span>
-          <span class="specialty-chip">Flat White</span>
-          <span class="specialty-chip">Seasonal Pour-Over</span>
+        <div class="crypto-item">
+          <div class="crypto-name">Ethereum ETH</div>
+          <div class="crypto-price">$2,128</div>
+          <div class="crypto-change change-up">
+            ▲ +3.50%
+          </div>
         </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=Accro+Coffee+36+Third+Street+Sai+Ying+Pun+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
       </div>
     </div>
 
-    <!-- Card 2 - SYP -->
-    <div class="cafe-card" data-area="syp">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweoKL-EbR7zd4B8_foDSfg2NbzKWNnyMSGA9Wyyxw5_96vQAvGa7KJxZ7mVJtLGFJrhPhxNzkZQbKuOXEXXDGOybcVCdx6tTaNjRqSuDYzKOLWs2w4IuikwASbgpkdRGKlDeND-QGg=w400-h300-k-no" alt="Postman Coffee">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">Postman Coffee</div>
-            <div class="busyness" id="busy-postman"></div>
-          </div>
-          <span class="area-tag syp">Sai Ying Pun</span>
-          <span class="gm-rating no-rating">No rating</span>
-        </div>
-        <div class="card-address">2A Third Street, Sai Ying Pun</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line unconfirmed">Hours not confirmed</div>
-          </div>
-        </div>
-        <div class="card-desc">Cozy neighbourhood spot with a sincere coffee programme. Postman sources from top regional roasters and nails the basics — no gimmicks, just well-extracted shots and excellent filter coffee.</div>
-        <div class="specialties">
-          <span class="specialty-chip">House Blend Espresso</span>
-          <span class="specialty-chip">Affogato</span>
-          <span class="specialty-chip">V60 Pour-Over</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=Postman+Coffee+2A+Third+Street+Sai+Ying+Pun+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
+    <!-- News -->
+    <div class="card">
+      <div class="card-title">📰 Crypto/Tech News</div>
+      <div><div class="news-item"><span class="news-num">1</span><span class="news-text">Whats your crypto currency Bitcoin ethereum Dash litecoin trading strategy?</span></div><div class="news-item"><span class="news-num">2</span><span class="news-text">Ask HN: Cheapest computation resources?</span></div><div class="news-item"><span class="news-num">3</span><span class="news-text">BTC Price Correlations to Product Hunt Post Trends Data</span></div><div class="news-item"><span class="news-num">4</span><span class="news-text">Ask HN: Building a universal SaaS billing solution for entrepreneurs</span></div><div class="news-item"><span class="news-num">5</span><span class="news-text">Show HN: OXH AI – Open-Source AI Crypto Signal Platform with Real-Time Analysis</span></div></div>
     </div>
 
-    <!-- Card 3 - SYP -->
-    <div class="cafe-card" data-area="syp">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweo9tQL2LMSeW62E8lx2wbnHcwrBlxM1kj0mbpzGgavTbRYPMouMAZQqDL64hz9C0sFQlAn8JfCQqJhI5CqNp5QVye0chkNjEDCXjXuzp5PT14NoLpQpFQLc4tcB_yr4bugU5kIR0qfJGktK=w400-h300-k-no" alt="Halfway Coffee">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">Halfway Coffee</div>
-            <div class="busyness" id="busy-halfway"></div>
-          </div>
-          <span class="area-tag syp">Sai Ying Pun</span>
-          <span class="gm-rating"><span class="star">⭐</span> 4.2</span>
-        </div>
-        <div class="card-address">G/F, 8 Second Street, Sai Ying Pun</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line"><span class="day-label">Daily</span> 6am – 6pm</div>
-          </div>
-        </div>
-        <div class="card-desc">Minimalist white-tiled café with serious coffee credentials. The team rotates guest origins monthly and handles everything from immersion to batch-brew with equal care. Peak weekend brunch spot.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Guest Origin Rotations</span>
-          <span class="specialty-chip">Batch Brew</span>
-          <span class="specialty-chip">Matcha Latte</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=Halfway+Coffee+8+Second+Street+Sai+Ying+Pun+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
+    <!-- Schedule -->
+    <div class="card">
+      <div class="card-title">📅 Today's Schedule</div>
+      <div class="section-content placeholder">No ~/daily-schedule.txt found. Create it to show your schedule.</div>
     </div>
 
-    <!-- Card 4 - SYP -->
-    <div class="cafe-card" data-area="syp">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweocht95_ZtTeFsbC46nSK0iZGwavicmnNXqKr02iqxwtqpE-B-U640et3o2uTw-At9v5Kbl64AubwQXwna4Li61_287d8yraPDwrvGzskiNh5VKr4towExRDZ98JEYMb1v-us-q=w400-h300-k-no" alt="Winstons Coffee">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">Winstons Coffee</div>
-            <div class="busyness" id="busy-winstons-syp"></div>
-          </div>
-          <span class="area-tag syp">Sai Ying Pun</span>
-          <span class="gm-rating"><span class="star">⭐</span> 4.6</span>
-        </div>
-        <div class="card-address">Shop 4, G/F, 213 Queen's Road West, Sai Ying Pun</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line"><span class="day-label">Mon–Wed, Sun</span> 7am – 7pm</div>
-            <div class="hours-line"><span class="day-label">Thu–Sat</span> 7am – 10pm</div>
-          </div>
-        </div>
-        <div class="card-desc">By SYP MTR Exit A1 — a hip all-day spot serving Allpress espressos, plus evening espresso martinis. Loved by the neighbourhood for its all-day sandwiches and kombucha on tap.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Espresso Martini</span>
-          <span class="specialty-chip">Allpress Espresso</span>
-          <span class="specialty-chip">All-Day Sandwiches</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=Winstons+Coffee+213+Queens+Road+West+Sai+Ying+Pun+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
+    <!-- Standup -->
+    <div class="card full-width">
+      <div class="card-title">✅ Daily Standup</div>
+      <div class="section-content"><pre class="standup-text">[VV]
+  Yesterday: Set up QMD memory, agent-browser skill, tech research, morning brief, daily proposer, self-improving memory system
+  Today: Monitoring workflows, ready to assist, continuing improvements
+  Blockers: None 🎉</pre></div>
     </div>
 
-    <!-- Card 5 - SYP -->
-    <div class="cafe-card" data-area="syp">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweqXNRErNPMNPMLrcdNubmawLuf0-KLWaxVsvKqw0mJPBhcj4U9ZweUTujdLjE4sJhw1rmW924QCDj64QhbwgSKW29aqw09LEumDpZs8Zf3xpx9yfzD1wdJdVZQ2FLHU8uwCY7EU=w400-h300-k-no" alt="Bluebird Coffee">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">Bluebird Coffee</div>
-            <div class="busyness" id="busy-bluebird"></div>
-          </div>
-          <span class="area-tag syp">Sai Ying Pun</span>
-          <span class="gm-rating"><span class="star">⭐</span> 4.3</span>
+    <!-- Quick Stats -->
+    <div class="card">
+      <div class="card-title">⚡ Quick Stats</div>
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-label">Time (HK)</span>
+          <span class="stat-value">11:58:48</span>
         </div>
-        <div class="card-address">Shop B, G/F, Lucky Commercial Centre, 103 Des Voeux Road West, Sai Ying Pun</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line"><span class="day-label">Mon–Sun</span> 8:30am – 6pm</div>
-          </div>
+        <div class="stat-item">
+          <span class="stat-label">Day</span>
+          <span class="stat-value">Monday</span>
         </div>
-        <div class="card-desc">Bold navy blue accents set this industrial-style café apart. Creative lattes like Nutella and peanut butter lattes, plus solid espresso. The spinach cheese lattice is a must-try snack.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Nutella Latte</span>
-          <span class="specialty-chip">Peanut Butter Latte</span>
-          <span class="specialty-chip">Espresso</span>
+        <div class="stat-item">
+          <span class="stat-label">Date</span>
+          <span class="stat-value">06 Apr 2026</span>
         </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=Bluebird+Coffee+103+Des+Voeux+Road+West+Sai+Ying+Pun+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
+        <div class="stat-item">
+          <span class="stat-label">Week</span>
+          <span class="stat-value">Week 15</span>
+        </div>
       </div>
     </div>
+  </div>
 
-    <!-- Card 6 - SYP -->
-    <div class="cafe-card" data-area="syp">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweqVIK0RZHrgS502EH1IoduiZS_NTd95NVFIm4HZ3D-xvOD1T9l8tvAWgWhAW-9QUeMrBbr6F0KL04TqujSgVnMY0uVqvypwD74mmfl69QvueQLQV9uGpOv4jDjardKdv-yHlCa2Mw=w400-h300-k-no" alt="April Coffee Lab">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">April Coffee Lab</div>
-            <div class="busyness" id="busy-april"></div>
-          </div>
-          <span class="area-tag syp">Sai Ying Pun</span>
-          <span class="gm-rating"><span class="star">⭐</span> 4.5</span>
-        </div>
-        <div class="card-address">Sai Ying Pun (near Second Street)</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line"><span class="day-label">Mon–Sun</span> 8am – 6pm</div>
-          </div>
-        </div>
-        <div class="card-desc">The newest addition to SYP's coffee scene, April Coffee Lab brings meticulous pour-over technique and a clean, minimal space. A must-visit for purists who appreciate light roast single-origins done right.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Pour-Over</span>
-          <span class="specialty-chip">Light Roast Single Origin</span>
-          <span class="specialty-chip">Chemex</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=April+Coffee+Lab+Sai+Ying+Pun+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
-    </div>
-
-    <!-- Card 7 - SYP -->
-    <div class="cafe-card" data-area="syp">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweorCjB666wRTPEOvzXJtX_kqdRq3Djil_N_ALYf4cg6pd9oxq_fYI3qgZBozgfzp6h7o2gn5RyhbH8MrNnnH5UOGwgLRUyohge10LaSsd_-J6TSGCiWZBPQtrYERiJevM7b6iwy=w400-h300-k-no" alt="OpenDoor Café">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">OpenDoor Café + Courtyard</div>
-            <div class="busyness" id="busy-opendoor"></div>
-          </div>
-          <span class="area-tag syp">Sai Ying Pun</span>
-          <span class="gm-rating"><span class="star">⭐</span> 4.1</span>
-        </div>
-        <div class="card-address">G/F, 120 Connaught Road West, Sai Ying Pun</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line"><span class="day-label">Mon–Sat</span> 8am – 6pm</div>
-            <div class="hours-line"><span class="day-label">Sun &amp; PH</span> Closed</div>
-          </div>
-        </div>
-        <div class="card-desc">True neighbourhood café harbourside on Connaught Road West. Dog-friendly, with organic eggs, almond milk lattes, kefir smoothies, and a signature Dark Chocolate drink. Free Wi-Fi.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Signature Dark Chocolate</span>
-          <span class="specialty-chip">Organic Eggs</span>
-          <span class="specialty-chip">Almond Milk Latte</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=OpenDoor+Cafe+Courtyard+120+Connaught+Road+West+Sai+Ying+Pun+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
-    </div>
-
-    <!-- Card 8 - SYP -->
-    <div class="cafe-card" data-area="syp">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwepJpKsy26VxYRt8T1Zrz1J9o-krq4H0zNHzAV5cdd6loHTWjlusJN3tDiLgSpHVqZxTHD0e0RB4abXy-JyZvf0Aw6WEGLSKPvi1HqBs93ze4TCoAYW21U_NDXhAy-Fg_IOWbOZP=w400-h300-k-no" alt="Stone Coffee">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">Stone Coffee</div>
-            <div class="busyness" id="busy-stone"></div>
-          </div>
-          <span class="area-tag syp">Sai Ying Pun</span>
-          <span class="gm-rating"><span class="star">⭐</span> 4.8</span>
-        </div>
-        <div class="card-address">G/F, 56 Centre Street, Sai Ying Pun</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line"><span class="day-label">Mon–Fri</span> 8am – 5:30pm</div>
-            <div class="hours-line"><span class="day-label">Sat–Sun</span> 8am – 6pm</div>
-          </div>
-        </div>
-        <div class="card-desc">A well-recognised specialty spot in SYP, featured in Sweden's "96° – A Guide to Tremendously Good Coffee Magazine." Consistent quality with a carefully sourced rotating menu and welcoming atmosphere.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Rotating Single Origin</span>
-          <span class="specialty-chip">Espresso</span>
-          <span class="specialty-chip">Specialty Drip</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=Stone+Coffee+56+Centre+Street+Sai+Ying+Pun+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
-    </div>
-
-    <!-- Card 9 - SYP -->
-    <div class="cafe-card" data-area="syp">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweo6KJy-v2xhTtWUL7UiEvpdmH2r4k3RF4e04PuDhtElgNRUO7W-E36ENjbZbbAsi72aajw2Y4fojTOadz0DtvrZuehg14XxrMn2yimFf1WlhXyyba7_jF7PqS4FKIVOVa2dAtQgfTR7on4=w400-h300-k-no" alt="Intention Coffee">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">Intention Coffee</div>
-            <div class="busyness" id="busy-intention"></div>
-          </div>
-          <span class="area-tag syp">Sai Ying Pun</span>
-          <span class="gm-rating"><span class="star">⭐</span> 4.0</span>
-        </div>
-        <div class="card-address">27 High Street, Sai Ying Pun</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line"><span class="day-label">Sun–Thu</span> 9am – 7pm</div>
-            <div class="hours-line"><span class="day-label">Fri–Sat</span> 9am – 10pm</div>
-          </div>
-        </div>
-        <div class="card-desc">Warm and intentional — this SYP café draws students and locals with its carefully prepared filter coffees, well-priced espresso drinks, and a relaxed vibe that makes it ideal for a morning fix.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Filter Coffee</span>
-          <span class="specialty-chip">Espresso</span>
-          <span class="specialty-chip">Hot Chocolate</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=Intention+Coffee+27+High+Street+Sai+Ying+Pun+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
-    </div>
-
-    <!-- Card 10 - SYP -->
-    <div class="cafe-card" data-area="syp">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweoZQkhvUjy45lr8DP7WJyj6v2XkRn4j-B0_8XmUISa-dRfEC6bvUNEzm52-rRjtNoF9CY_7ZVI1eRuPL74Ks56BrljxPA-MZiVRo-zZ2SHRc7dXROpReBDtCvUSl1UxrKM3S5lkO-0XPWKP=w400-h300-k-no" alt="Coffee by Zion">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">Coffee by Zion</div>
-            <div class="busyness" id="busy-zion"></div>
-          </div>
-          <span class="area-tag syp">Sai Ying Pun</span>
-          <span class="gm-rating"><span class="star">⭐</span> 4.3</span>
-        </div>
-        <div class="card-address">Chun King Court, 1-3 First Street, Sai Ying Pun</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line"><span class="day-label">Mon–Fri</span> 8am – 6pm</div>
-            <div class="hours-line"><span class="day-label">Sat–Sun</span> 8am – 8pm</div>
-          </div>
-        </div>
-        <div class="card-desc">Lively café with an eclectic menu ranging from egg benedict to Korean fried chicken burgers alongside unique specialty drinks — think sesame lattes and creative coffee cocktails.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Sesame Latte</span>
-          <span class="specialty-chip">Coffee Cocktails</span>
-          <span class="specialty-chip">Egg Benedict</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=Coffee+by+Zion+83+First+Street+Sai+Ying+Pun+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
-    </div>
-
-    <!-- Card 11 - HKU/STT -->
-    <div class="cafe-card" data-area="hku">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwerm0f1qZy0ZGKFMD5BC2X-GLLb1tGB3navbN36un-tf7y3mKwoOkb-8kf8xpZ0_5hkHyPz3pZNriLwN6Ph6tb-IrrYHC2nH5_sc7ta9dPdZud9Q08Dr4Hpo7qczX09YhUM9NT0=w400-h300-k-no" alt="Craft Coffee">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">Craft Coffee</div>
-            <div class="busyness" id="busy-craft"></div>
-          </div>
-          <span class="area-tag hku">HKU / Shek Tong Tsui</span>
-          <span class="gm-rating"><span class="star">⭐</span> 4.0</span>
-        </div>
-        <div class="card-address">Shop A, G/F, 72 Second Street, Sai Ying Pun</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line unconfirmed">Hours not confirmed</div>
-          </div>
-        </div>
-        <div class="card-desc">Right near HKU campus, this spot draws students and coffee nerds alike. Known for consistent extraction, friendly baristas, and a solid all-day breakfast menu to pair with your flat white.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Flat White</span>
-          <span class="specialty-chip">Long Black</span>
-          <span class="specialty-chip">Cold Brew</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=Craft+Coffee+72+Second+Street+Sai+Ying+Pun+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
-    </div>
-
-    <!-- Card 12 - HKU/STT -->
-    <div class="cafe-card" data-area="hku">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwerI52L4Tq9h4JcDE8TyqOsMHG7bP9WpwywgKpUQOy15hmswzlXW6QwABNLprzkgCgCgj15XHelJpBjDJXLkdPh61CbTCNuZ3iBPjg2e9SXk867oXOGJm_A8K609UBElfwT1omMvXn9jbcjk=w400-h300-k-no" alt="Noc Coffee Co.">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">Noc Coffee Co.</div>
-            <div class="busyness" id="busy-noc"></div>
-          </div>
-          <span class="area-tag hku">HKU / Shek Tong Tsui</span>
-          <span class="gm-rating"><span class="star">⭐</span> 4.3</span>
-        </div>
-        <div class="card-address">Shop 4, G/F, Bohemian House, 321 Des Voeux Road West, Sai Ying Pun</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line"><span class="day-label">Mon–Sun</span> 8am – 6pm</div>
-          </div>
-        </div>
-        <div class="card-desc">NOC (No Observation Criteria) is a beloved local chain with serious specialty cred. The roastery lab near HKU is spacious with floor-to-ceiling windows — perfect for work sessions over a cortado or AeroPress.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Cortado</span>
-          <span class="specialty-chip">AeroPress</span>
-          <span class="specialty-chip">Signature Noc Latte</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=Noc+Coffee+Co+Bohemian+House+321+Des+Voeux+Road+West+Sai+Ying+Pun+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
-    </div>
-
-    <!-- Card 13 - HKU/STT -->
-    <div class="cafe-card" data-area="hku">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweqI9JA8bAGMfPaKQCmK9FOXmOL6n35cHSSCHJFO1TxMr8z8Yah5NcqBOOd5TtCPS48ZHcMFtcHvw8UBDtWg1uVI1AeT8RNy53HPLE20T1NODvz5kcgGGBsLb6X2802Xuqq3YLyJ9BV6FWJt=w400-h300-k-no" alt="The Coffee Academics">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">The Coffee Academics</div>
-            <div class="busyness" id="busy-academics-hku"></div>
-          </div>
-          <span class="area-tag hku">HKU / Shek Tong Tsui</span>
-          <span class="gm-rating"><span class="star">⭐</span> 4.0</span>
-        </div>
-        <div class="card-address">Near HKU MTR Station Exit A1</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line"><span class="day-label">Mon–Fri</span> 8am – 8pm</div>
-            <div class="hours-line"><span class="day-label">Sat–Sun</span> 9:30am – 7:30pm</div>
-          </div>
-        </div>
-        <div class="card-desc">Part of HK's most celebrated specialty network, this outpost near HKU features curated single-estate coffees, impressive siphon preparations, and inventive signature lattes. A true coffee classroom.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Single Estate Pour-Over</span>
-          <span class="specialty-chip">Siphon Coffee</span>
-          <span class="specialty-chip">Signature Lattes</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=The+Coffee+Academics+HKU+MTR+Station+Sai+Ying+Pun+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
-    </div>
-
-    <!-- Card 14 - HKU/STT -->
-    <div class="cafe-card" data-area="hku">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweq7fiUrmp90vT1QS5ypo3n6MQmpzk_VXppcfsScrMkIhukayVLjo3KQPCD5N5Y4mDhyi77HTg9VmhbB6NeWFTd0iVSty-7913x3F16y69Vd9Jd2sioq35deBd337tRhYgHhKCDJ=w400-h300-k-no" alt="Detour">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">Detour</div>
-            <div class="busyness" id="busy-detour"></div>
-          </div>
-          <span class="area-tag hku">HKU / Shek Tong Tsui</span>
-          <span class="gm-rating"><span class="star">⭐</span> 4.3</span>
-        </div>
-        <div class="card-address">Sai Ying Pun / Shek Tong Tsui</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line"><span class="day-label">Mon–Fri</span> 7:30am – 7pm</div>
-            <div class="hours-line"><span class="day-label">Sat–Sun</span> 8am – 7pm</div>
-          </div>
-        </div>
-        <div class="card-desc">An unassuming all-day café and wine bar serving antipodean-style coffee alongside natural wine. Simple but quality brunch plates, breakfast bowls, and sandwiches — a neighbourhood gem.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Antipodean Coffee</span>
-          <span class="specialty-chip">Natural Wine</span>
-          <span class="specialty-chip">All-Day Brunch</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=Detour+Cafe+Shek+Tong+Tsui+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
-    </div>
-
-    <!-- Card 15 - KT -->
-    <div class="cafe-card" data-area="kt">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwer47DuT6NoXwqF1I0WgHqT00DE50Mu9aIgoHPrNW7M9xlt80yIFrcWAXIrO4N-Zcm58D6RyBrXEmpRJ3iLX8T6z8d6t6yE-EDEWWkX452qbtsbI4FeMAY-I6t5y8E5BNcVYSHpcyg=w400-h300-k-no" alt="Kaffeine">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">Kaffeine</div>
-            <div class="busyness" id="busy-kaffeine"></div>
-          </div>
-          <span class="area-tag kt">Kennedy Town</span>
-          <span class="gm-rating"><span class="star">⭐</span> 3.9</span>
-        </div>
-        <div class="card-address">G/F, 8 Smithfield Road, Kennedy Town</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line"><span class="day-label">Mon–Fri</span> 8am – 6pm</div>
-            <div class="hours-line"><span class="day-label">Sat–Sun &amp; PH</span> 10am – 7pm</div>
-          </div>
-        </div>
-        <div class="card-desc">Tucked on Smithfield, Kaffeine channels Melbourne coffee culture in HK. The owners trained in specialty coffee and it shows — precise extractions, beautiful latte art, and a warm exposed-brick interior.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Melbourne-style Latte</span>
-          <span class="specialty-chip">Piccolo</span>
-          <span class="specialty-chip">Siphon Brew</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=Kaffeine+8+Smithfield+Road+Kennedy+Town+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
-    </div>
-
-    <!-- Card 16 - KT -->
-    <div class="cafe-card" data-area="kt">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweqqhRKeEc6_-lmvbR7AiqPU-xAS-YwNd3lG9X_MWPb3inyFNBgc3C0Iv2CWfpGZW16L_B2Or6J5AutUrQV6UlCi1nmPMlgjAHZvgqgVwjkCQytKCgJpZ0frJNRYxgnrrzWSKVBt=w400-h300-k-no" alt="Café Lamma">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">Café Lamma</div>
-            <div class="busyness" id="busy-lamma"></div>
-          </div>
-          <span class="area-tag kt">Kennedy Town</span>
-          <span class="gm-rating no-rating">No rating</span>
-        </div>
-        <div class="card-address">G/F, 36 Catchick Street, Kennedy Town</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line unconfirmed">Hours not confirmed</div>
-          </div>
-        </div>
-        <div class="card-desc">Island vibes in KT — this laidback café uses beans from local and international micro-roasters. The outdoor terrace is perfect for lazy weekend mornings with a pour-over and freshly baked pastry.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Lamma Blend Pour-Over</span>
-          <span class="specialty-chip">Iced Americano</span>
-          <span class="specialty-chip">Seasonal Specials</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=Cafe+Lamma+36+Catchick+Street+Kennedy+Town+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
-    </div>
-
-    <!-- Card 17 - KT -->
-    <div class="cafe-card" data-area="kt">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwepCISUPgPxdxLMOC-s1kmtmos3gUlj_BQ7jbR0JmZk2MuKEbnfQ2MUSexo3WryzuezmbpZ69xZ7SWCNgugv-s-9UGvc4XLtI3V1L0fUeFZZkF1icrt5ZzwzddTBpSp47dXW7_cF=w400-h300-k-no" alt="The Coffee Academics">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">The Coffee Academics</div>
-            <div class="busyness" id="busy-academics-kt"></div>
-          </div>
-          <span class="area-tag kt">Kennedy Town</span>
-          <span class="gm-rating"><span class="star">⭐</span> 4.0</span>
-        </div>
-        <div class="card-address">45 Catchick Street, Kennedy Town</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line"><span class="day-label">Mon–Fri</span> 8am – 8pm</div>
-            <div class="hours-line"><span class="day-label">Sat–Sun</span> 9:30am – 7:30pm</div>
-          </div>
-        </div>
-        <div class="card-desc">Part of a celebrated HK specialty network, this KT outpost features a curated selection of single-estate coffees, impressive siphon preparations, and inventive signature lattes. A true coffee classroom.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Single Estate Pour-Over</span>
-          <span class="specialty-chip">Signature Lattes</span>
-          <span class="specialty-chip">Siphon Coffee</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=The+Coffee+Academics+45+Catchick+Street+Kennedy+Town+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
-    </div>
-
-    <!-- Card 18 - KT -->
-    <div class="cafe-card" data-area="kt">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwerPGgicV9JOGDCfU4BJR0pd6fddqW7DE7AHusBPMKiHb1lsH3ZZIIHdR3f6qT0yoUiu-KCYvqZrNh_YCPIk7ftr5IVJ67W5y-WeKpqqww9_FxAQvaD7fNY48guAt6r1jUxos_j3KnlewbBE=w400-h300-k-no" alt="Winstons Coffee">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">Winstons Coffee</div>
-            <div class="busyness" id="busy-winstons-kt"></div>
-          </div>
-          <span class="area-tag kt">Kennedy Town</span>
-          <span class="gm-rating"><span class="star">⭐</span> 4.7</span>
-        </div>
-        <div class="card-address">Kennedy Town, near Catchick Street</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line"><span class="day-label">Mon–Sun</span> 7am – 10pm</div>
-          </div>
-        </div>
-        <div class="card-desc">The KT sibling of the beloved SYP original. Coffee shop by day, cocktail bar by night — serving killer flat whites and legendary espresso martinis in a relaxed neighbourhood setting.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Espresso Martini</span>
-          <span class="specialty-chip">Flat White</span>
-          <span class="specialty-chip">Evening Cocktails</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=Winstons+Coffee+Catchick+Street+Kennedy+Town+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
-    </div>
-
-    <!-- Card 19 - KT -->
-    <div class="cafe-card" data-area="kt">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweqA2N4K0uTjK4H82QsKX34f1vswvKrVVP_nS_U1oWhIevT6cKEFnbAxJerHbTPCQCTEKzPiP7YlH-BlA9_mxV1bnk8tlQp9-PlaQby0Gxh-NH25yh1seRmUdXxyphabXTJzi1OfHA=w400-h300-k-no" alt="% Arabica">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">% Arabica</div>
-            <div class="busyness" id="busy-arabica"></div>
-          </div>
-          <span class="area-tag kt">Kennedy Town</span>
-          <span class="gm-rating"><span class="star">⭐</span> 4.1</span>
-        </div>
-        <div class="card-address">No. 1 Davis Street, Kennedy Town</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line"><span class="day-label">Mon–Fri</span> 8:30am – 7pm</div>
-            <div class="hours-line"><span class="day-label">Sat–Sun &amp; PH</span> 8:30am – 7pm</div>
-          </div>
-        </div>
-        <div class="card-desc">The iconic global specialty chain's Kennedy Town branch. Known for its clean, architectural aesthetic and consistently excellent % Arabica house blend. A reliable stop for espresso or their signature latte.</div>
-        <div class="specialties">
-          <span class="specialty-chip">% Arabica Blend</span>
-          <span class="specialty-chip">Signature Latte</span>
-          <span class="specialty-chip">Iced Coffee</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=Arabica+Davis+Street+Kennedy+Town+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
-    </div>
-
-    <!-- Card 20 - KT -->
-    <div class="cafe-card" data-area="kt">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweq0dtXEu2dVkW7JJwybNujdFA4lLvC5j0_ZFk7IgHKUpIh5O01FhwFe-eDqdYf4uGIuia1khUuG5Oss13KNvdtrLSVFGIDK0a5UMKFTaJxKAZ6XzOz4Dl-M7HyTdnZKu7yBYtR9ag=w400-h300-k-no" alt="Waffling Beans">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">Waffling Beans</div>
-            <div class="busyness" id="busy-waffling"></div>
-          </div>
-          <span class="area-tag kt">Kennedy Town</span>
-          <span class="gm-rating no-rating">No rating</span>
-        </div>
-        <div class="card-address">4-8 North Street, Kennedy Town</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line unconfirmed">Hours not confirmed</div>
-          </div>
-        </div>
-        <div class="card-desc">A waffle-meets-coffee concept that nails both halves of the equation. Specialty espresso drinks alongside freshly made waffles — sweet and savoury options. A KT favourite for lazy weekend brunch and coffee.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Espresso</span>
-          <span class="specialty-chip">Waffles</span>
-          <span class="specialty-chip">Cold Brew</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=Waffling+Beans+4+North+Street+Kennedy+Town+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
-    </div>
-
-    <!-- Card 21 - KT -->
-    <div class="cafe-card" data-area="kt">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwepx9K5sLF_gvh6zSJLA7yZeoDQ54rGpMfJ2LOwgX04_-WyzXMqh4QVO6aw4XUWwoGsn3s-cL9eULqWl8YvoFBzaBRyjlbciS9YC2Bsl1KVpO0lsGkEbPiMILFdQlOdMQqCA2BuC=w400-h300-k-no" alt="The Cofftea Shop">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">The Cofftea Shop</div>
-            <div class="busyness" id="busy-cofftea"></div>
-          </div>
-          <span class="area-tag kt">Kennedy Town</span>
-          <span class="gm-rating"><span class="star">⭐</span> 4.6</span>
-        </div>
-        <div class="card-address">78-86 Catchick Street, Kennedy Town</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line"><span class="day-label">Mon–Sun</span> 8am – 6pm</div>
-          </div>
-        </div>
-        <div class="card-desc">A creative KT spot where coffee and tea merge beautifully. Known for inventive beverage crafting, including tea-infused espresso drinks and delicate lattice lattes. Great for those who like their caffeine nuanced.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Tea-Infused Espresso</span>
-          <span class="specialty-chip">Lattice Latte</span>
-          <span class="specialty-chip">Hand Drip</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=The+Cofftea+Shop+78+Catchick+Street+Kennedy+Town+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
-    </div>
-
-    <!-- Card 22 - KT -->
-    <div class="cafe-card" data-area="kt">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwequyyxXonrNcoAfv5I7mV8UfEmAezsAIafef3jv9XfdQgwECK0Ps_f-EMIFOKijErrxxg1nuX32opG1dpfRvEJpU0TDOmuZxvT1JuLNHa9pO21v2wClH2nCRw8KtmSoQg1QX9dHXMcY6hjW=w400-h300-k-no" alt="Little Cove Espresso">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">Little Cove Espresso</div>
-            <div class="busyness" id="busy-littlecove"></div>
-          </div>
-          <span class="area-tag kt">Kennedy Town</span>
-          <span class="gm-rating no-rating">No rating</span>
-        </div>
-        <div class="card-address">Shop 3, G/F, New Fortune House, 3-5 New Praya, Kennedy Town</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line"><span class="day-label">Mon–Sun</span> 7:30am – 6pm</div>
-          </div>
-        </div>
-        <div class="card-desc">A small but mighty espresso bar bringing big flavour to KT. Focused on quality over quantity — a tight menu of expertly extracted shots and silky milk drinks. The flat white here punches well above its weight.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Espresso</span>
-          <span class="specialty-chip">Flat White</span>
-          <span class="specialty-chip">Batch Brew</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=Little+Cove+Espresso+3+New+Praya+Kennedy+Town+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
-    </div>
-
+  <div class="footer">
+    Run <code>bash skills/daily-dashboard/generate.sh</code> to refresh data<br>
+    File location: /home/yat121/.openclaw/workspace/skills/daily-dashboard/index.html
   </div>
 </div>
-
-<footer>
-  <div class="footer-busyness">
-    <div class="footer-legend"><div class="dot" style="background:#e05040;box-shadow:0 0 4px #e05040aa;"></div> Peak hours (busy)</div>
-    <div class="footer-legend"><div class="dot" style="background:#c8aa3c;box-shadow:0 0 4px #c8aa3caa;"></div> Shoulder hours</div>
-    <div class="footer-legend"><div class="dot" style="background:#50c87a;box-shadow:0 0 4px #50c87aaa;"></div> Quiet hours</div>
-  </div>
-  <p>Specialty coffee map of Hong Kong &mdash; Sai Ying Pun &bull; HKU &bull; Kennedy Town</p>
-</footer>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-  // ── CAFE DATA ──
-  const cafes = [
-    // SYP
-    { name: 'Accro Coffee',        area: 'Sai Ying Pun',  areaKey: 'syp', lat: 22.2857, lng: 114.1430, address: 'Shop 2, G/F, 36 Third Street, Sai Ying Pun', gmapUrl: 'https://www.google.com/maps/place/Accro+Coffee/@22.2857,114.1430,17z' },
-    { name: 'Postman Coffee',      area: 'Sai Ying Pun',  areaKey: 'syp', lat: 22.2862, lng: 114.1428, address: '2A Third Street, Sai Ying Pun', gmapUrl: 'https://www.google.com/maps/place/Postman+Coffee/@22.2862,114.1428,17z' },
-    { name: 'Halfway Coffee',     area: 'Sai Ying Pun',  areaKey: 'syp', lat: 22.2865, lng: 114.1407, address: 'G/F, 8 Second Street, Sai Ying Pun', gmapUrl: 'https://www.google.com/maps/place/Halfway+Coffee/@22.2865,114.1407,17z' },
-    { name: 'Winstons Coffee',     area: 'Sai Ying Pun',  areaKey: 'syp', lat: 22.2860, lng: 114.1415, address: 'Shop 4, G/F, 213 Queen\'s Road West, Sai Ying Pun', gmapUrl: 'https://www.google.com/maps/place/Winstons+Coffee/@22.2860,114.1415,17z' },
-    { name: 'Bluebird Coffee',     area: 'Sai Ying Pun',  areaKey: 'syp', lat: 22.2863, lng: 114.1420, address: 'Shop B, G/F, Lucky Commercial Centre, 103 Des Voeux Road West, Sai Ying Pun', gmapUrl: 'https://www.google.com/maps/place/Bluebird+Coffee/@22.2863,114.1420,17z' },
-    { name: 'April Coffee Lab',    area: 'Sai Ying Pun',  areaKey: 'syp', lat: 22.2868, lng: 114.1415, address: 'Sai Ying Pun (near Second Street)', gmapUrl: 'https://www.google.com/maps/place/April+Coffee+Lab/@22.2868,114.1415,17z' },
-    { name: 'OpenDoor Café',       area: 'Sai Ying Pun',  areaKey: 'syp', lat: 22.2850, lng: 114.1400, address: 'G/F, 120 Connaught Road West, Sai Ying Pun', gmapUrl: 'https://www.google.com/maps/place/OpenDoor+Caf%C3%A9/@22.2850,114.1400,17z' },
-    { name: 'Stone Coffee',        area: 'Sai Ying Pun',  areaKey: 'syp', lat: 22.2870, lng: 114.1418, address: 'G/F, 56 Centre Street, Sai Ying Pun', gmapUrl: 'https://www.google.com/maps/place/Stone+Coffee/@22.2870,114.1418,17z' },
-    { name: 'Intention Coffee',    area: 'Sai Ying Pun',  areaKey: 'syp', lat: 22.2858, lng: 114.1402, address: '27 High Street, Sai Ying Pun', gmapUrl: 'https://www.google.com/maps/place/Intention+Coffee/@22.2858,114.1402,17z' },
-    { name: 'Coffee by Zion',      area: 'Sai Ying Pun',  areaKey: 'syp', lat: 22.2872, lng: 114.1412, address: 'Chun King Court, 1-3 First Street, Sai Ying Pun', gmapUrl: 'https://www.google.com/maps/place/Coffee+by+Zion/@22.2872,114.1412,17z' },
-    // HKU / Shek Tong Tsui
-    { name: 'Craft Coffee',        area: 'HKU / STT',     areaKey: 'hku', lat: 22.2855, lng: 114.1418, address: 'Shop A, G/F, 72 Second Street, Sai Ying Pun', gmapUrl: 'https://www.google.com/maps/place/Craft+Coffee/@22.2855,114.1418,17z' },
-    { name: 'Noc Coffee Co.',      area: 'HKU / STT',     areaKey: 'hku', lat: 22.2852, lng: 114.1395, address: 'Shop 4, G/F, Bohemian House, 321 Des Voeux Road West, Sai Ying Pun', gmapUrl: 'https://www.google.com/maps/place/Noc+Coffee+Co/@22.2852,114.1395,17z' },
-    { name: 'The Coffee Academics (HKU)', area: 'HKU / STT', areaKey: 'hku', lat: 22.2840, lng: 114.1410, address: 'Near HKU MTR Station Exit A1', gmapUrl: 'https://www.google.com/maps/place/The+Coffee+Academics/@22.2840,114.1410,17z' },
-    { name: 'Detour',              area: 'HKU / STT',    areaKey: 'hku', lat: 22.2850, lng: 114.1425, address: 'Sai Ying Pun / Shek Tong Tsui', gmapUrl: 'https://www.google.com/maps/place/Detour/@22.2850,114.1425,17z' },
-    // KT
-    { name: 'Kaffeine',            area: 'Kennedy Town',  areaKey: 'kt',  lat: 22.2828, lng: 114.1313, address: 'G/F, 8 Smithfield Road, Kennedy Town', gmapUrl: 'https://www.google.com/maps/place/Kaffeine/@22.2828,114.1313,17z' },
-    { name: 'Café Lamma',          area: 'Kennedy Town',  areaKey: 'kt',  lat: 22.2817, lng: 114.1293, address: 'G/F, 36 Catchick Street, Kennedy Town', gmapUrl: 'https://www.google.com/maps/place/Caf%C3%A9+Lamma/@22.2817,114.1293,17z' },
-    { name: 'The Coffee Academics (KT)', area: 'Kennedy Town', areaKey: 'kt', lat: 22.2816, lng: 114.1295, address: '45 Catchick Street, Kennedy Town', gmapUrl: 'https://www.google.com/maps/place/The+Coffee+Academics/@22.2816,114.1295,17z' },
-    { name: 'Winstons Coffee (KT)', area: 'Kennedy Town',  areaKey: 'kt',  lat: 22.2820, lng: 114.1300, address: 'Kennedy Town, near Catchick Street', gmapUrl: 'https://www.google.com/maps/place/Winstons+Coffee/@22.2820,114.1300,17z' },
-    { name: '% Arabica',           area: 'Kennedy Town',  areaKey: 'kt',  lat: 22.2810, lng: 114.1285, address: 'No. 1 Davis Street, Kennedy Town', gmapUrl: 'https://www.google.com/maps/place/%25+Arabica/@22.2810,114.1285,17z' },
-    { name: 'Waffling Beans',      area: 'Kennedy Town',  areaKey: 'kt',  lat: 22.2815, lng: 114.1310, address: '4-8 North Street, Kennedy Town', gmapUrl: 'https://www.google.com/maps/place/Waffling+Beans/@22.2815,114.1310,17z' },
-    { name: 'The Cofftea Shop',    area: 'Kennedy Town',  areaKey: 'kt',  lat: 22.2822, lng: 114.1305, address: '78-86 Catchick Street, Kennedy Town', gmapUrl: 'https://www.google.com/maps/place/The+Cofftea+Shop/@22.2822,114.1305,17z' },
-    { name: 'Little Cove Espresso',area: 'Kennedy Town',  areaKey: 'kt',  lat: 22.2818, lng: 114.1298, address: 'Shop 3, G/F, New Fortune House, 3-5 New Praya, Kennedy Town', gmapUrl: 'https://www.google.com/maps/place/Little+Cove+Espresso/@22.2818,114.1298,17z' },
-  ];
-
-  // ── MAP ──
-  const map = L.map('map', {
-    zoomControl: true,
-    scrollWheelZoom: false,
-    dragging: true,
-    tap: true
-  }).setView([22.2835, 114.136], 15);
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 19
-  }).addTo(map);
-
-  // Custom marker icon
-  const markerIcon = L.divIcon({
-    className: '',
-    html: '<div style="background:#c8884a;width:14px;height:14px;border-radius:50%;border:2px solid #e8d5b0;box-shadow:0 2px 8px rgba(0,0,0,0.4);"></div>',
-    iconSize: [14, 14],
-    iconAnchor: [7, 7]
-  });
-
-  // ── USER LOCATION ──
-  let userMarker = null;
-  let accuracyCircle = null;
-
-  function onLocationFound(e) {
-    const { lat, lng, accuracy } = e.latlng;
-    if (userMarker) {
-      map.removeLayer(userMarker);
-    }
-    if (accuracyCircle) {
-      map.removeLayer(accuracyCircle);
-    }
-    const blueIcon = L.divIcon({
-      className: '',
-      html: `<div style="background:#4A90E2;width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #4A90E2,0 2px 8px rgba(0,0,0,0.3);"></div>`,
-      iconSize: [16, 16],
-      iconAnchor: [8, 8]
-    });
-    userMarker = L.marker([lat, lng], { icon: blueIcon }).addTo(map).bindPopup("📍 You are here");
-    accuracyCircle = L.circle([lat, lng], { radius: accuracy, color: '#4A90E2', fillColor: '#4A90E2', fillOpacity: 0.1, weight: 1 }).addTo(map);
-    map.setView([lat, lng], 15);
-  }
-
-  function onLocationError(e) {
-    console.log("Location error:", e.message);
-  }
-
-  function locateMe() {
-    map.locate({ setView: false, maxZoom: 15, enableHighAccuracy: true });
-  }
-
-  map.on('locationfound', onLocationFound);
-  map.on('locationerror', onLocationError);
-
-  // Locate button
-  const locateBtn = L.control({ position: 'topright' });
-  locateBtn.onAdd = function() {
-    const btn = L.DomUtil.create('button', 'leaflet-locate-btn');
-    btn.innerHTML = '📍';
-    btn.title = 'Show my location';
-    btn.style.cssText = 'background:#2a1e0e;border:2px solid #5a3e1e;color:#e8d5b0;width:36px;height:36px;border-radius:8px;font-size:16px;cursor:pointer;';
-    btn.onclick = locateMe;
-    return btn;
-  };
-  locateBtn.addTo(map);
-
-  const markers = {};
-  cafes.forEach(cafe => {
-    const popupContent = `<div class="popup-name">${cafe.name}</div><div class="popup-area">${cafe.area}</div><a href="${cafe.gmapUrl}" target="_blank" rel="noopener" style="color:#c8884a;font-size:0.72rem;margin-top:0.3rem;display:inline-block;">📍 View on Google Maps</a>`;
-    const m = L.marker([cafe.lat, cafe.lng], { icon: markerIcon })
-      .addTo(map)
-      .bindPopup(popupContent);
-    markers[cafe.areaKey] = markers[cafe.areaKey] || [];
-    markers[cafe.areaKey].push(m);
-  });
-
-  // ── FILTER ──
-  let activeFilter = 'all';
-
-  function applyFilter(filter) {
-    activeFilter = filter;
-    const cards = document.querySelectorAll('.cafe-card');
-    const noResults = document.getElementById('noResults');
-    let visible = 0;
-
-    cards.forEach(card => {
-      const area = card.dataset.area;
-      const show = filter === 'all' || area === filter;
-      card.classList.toggle('hidden', !show);
-      if (show) visible++;
-    });
-
-    noResults.classList.toggle('visible', visible === 0);
-
-    // Show/hide markers
-    const allKeys = ['syp', 'hku', 'kt'];
-    allKeys.forEach(key => {
-      if (markers[key]) {
-        markers[key].forEach(m => {
-          if (filter === 'all' || key === filter) {
-            m.addTo(map);
-          } else {
-            m.remove();
-          }
-        });
-      }
-    });
-
-    // Re-center map
-    if (filter !== 'all') {
-      const filterCafes = cafes.filter(c => c.areaKey === filter);
-      if (filterCafes.length) {
-        const bounds = L.latLngBounds(filterCafes.map(c => [c.lat, c.lng]));
-        map.fitBounds(bounds, { padding: [50, 50] });
-      }
-    } else {
-      map.setView([22.2835, 114.136], 15);
-    }
-  }
-
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      applyFilter(btn.dataset.filter);
-    });
-  });
-
-  // ── BUSYNESS INDICATOR ──
-  // Peak hours: 8-10am, 12-2pm, 6-8pm
-  // Shoulder: 10am-12pm, 2-6pm
-  // Quiet: 8pm-8am
-
-  function getBusyness() {
-    const now = new Date();
-    // Hong Kong is UTC+8
-    const hkHour = (now.getUTCHours() + 8) % 24;
-    const hkMin = now.getUTCMinutes();
-    const hkTimeStr = `${String(hkHour).padStart(2,'0')}:${String(hkMin).padStart(2,'0')}`;
-
-    // Update clock
-    document.getElementById('hkTime').textContent = hkTimeStr;
-
-    let level, label, next;
-    if (hkHour >= 8 && hkHour < 10) {
-      level = 'red'; label = 'Morning Rush';
-      next = 'Lunch peak at 12pm';
-    } else if (hkHour >= 10 && hkHour < 12) {
-      level = 'yellow'; label = 'Shoulder';
-      next = 'Lunch peak at 12pm';
-    } else if (hkHour >= 12 && hkHour < 14) {
-      level = 'red'; label = 'Lunch Peak';
-      next = 'Evening peak at 6pm';
-    } else if (hkHour >= 14 && hkHour < 18) {
-      level = 'yellow'; label = 'Shoulder';
-      next = 'Evening peak at 6pm';
-    } else if (hkHour >= 18 && hkHour < 20) {
-      level = 'red'; label = 'Evening Peak';
-      next = 'Quieter after 8pm';
-    } else {
-      level = 'green'; label = 'Quiet';
-      next = hkHour >= 20 ? 'Next: morning rush 8am' : 'Opens 7–8:30am';
-    }
-
-    // Footer hint
-    const hint = document.getElementById('busynessHint');
-    if (hint) hint.innerHTML = `&nbsp;·&nbsp; <span style="color:var(--accent)">${next}</span>`;
-
-    return { level, label };
-  }
-
-  function updateBusyness() {
-    const { level, label } = getBusyness();
-
-    // All busyness indicators share the same class, same state (time-based, not per-cafe)
-    document.querySelectorAll('.busyness').forEach(el => {
-      el.className = `busyness ${level}`;
-      el.innerHTML = `<span class="dot"></span>${label}`;
-    });
-  }
-
-  // Run immediately then every minute
-  updateBusyness();
-  setInterval(updateBusyness, 60000);
-</script>
 </body>
 </html>
