@@ -1693,7 +1693,7 @@
       id: 'crescent', name: 'Crescent Coffee',
       area: 'Sai Ying Pun', areaKey: 'syp',
       lat: 22.2863, lng: 114.1395,
-      address: 'First Street / Queen's Road West area, Sai Ying Pun',
+      address: "First Street / Queen's Road West area, Sai Ying Pun",
       gmapUrl: 'https://www.google.com/maps/search/?api=1&query=Crescent+Coffee+First+Street+Sai+Ying+Pun+Hong+Kong',
       peakType: 'morning',
       openHours: { weekdays:{open:'8:00am',close:'6:00pm'}, weekends:{open:'9:00am',close:'5:00pm'} }
@@ -1712,8 +1712,8 @@
     tap: true
   }).setView([22.2835, 114.136], 15);
 
-  L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19
   }).addTo(map);
 
@@ -1797,7 +1797,6 @@
       const areaMatch = activeAreaFilters.size === 0 || activeAreaFilters.has(area);
       const busynessMatch = activeBusynessFilters.size === 0 || activeBusynessFilters.has(busyness);
       const show = areaMatch && busynessMatch;
-      console.log(`[Filter] ${card.querySelector('.card-name')?.textContent}: area=${area} busyness=${busyness} show=${show}`);
       card.classList.toggle('hidden', !show);
       if (show) visible++;
     });
