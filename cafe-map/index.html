@@ -311,7 +311,7 @@
     .busyness.busy     { background: rgba(240,130,30,0.2);  color: #e08828; border: 1px solid rgba(240,130,30,0.4); }
     .busyness.busy     .dot { background: #e08828; box-shadow: 0 0 4px #e08828aa; }
 
-    /* 🟡 Moderate — Shoulder hours */
+    /* 🟡 Moderate */
     .busyness.moderate { background: rgba(200,170,50,0.18); color: #c8aa3c; border: 1px solid rgba(200,170,50,0.35); }
     .busyness.moderate .dot { background: #c8aa3c; box-shadow: 0 0 4px #c8aa3caa; }
 
@@ -566,11 +566,19 @@
   <div class="clock-time" id="busynessHint"></div>
 </div>
 
-<div class="filters">
+<div class="filters" id="filterRow">
   <button class="filter-btn active" data-filter="all">All</button>
   <button class="filter-btn" data-filter="syp">Sai Ying Pun</button>
   <button class="filter-btn" data-filter="hku">HKU / Shek Tong Tsui</button>
   <button class="filter-btn" data-filter="kt">Kennedy Town</button>
+</div>
+<div class="filters" id="busynessFilterRow">
+  <button class="filter-btn active" data-busyness-filter="all">All</button>
+  <button class="filter-btn" data-busyness-filter="verybusy">🔴 Very Busy</button>
+  <button class="filter-btn" data-busyness-filter="busy">🌟 Busy</button>
+  <button class="filter-btn" data-busyness-filter="moderate">🟡 Moderate</button>
+  <button class="filter-btn" data-busyness-filter="quiet">🟢 Quiet</button>
+  <button class="filter-btn" data-busyness-filter="closed">⚫️ Closed</button>
 </div>
 
 <div class="container">
@@ -581,36 +589,36 @@
   <div class="cafe-grid" id="cafeGrid">
 
     <!-- Card 1 - SYP -->
-    <div class="cafe-card" data-area="syp">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwernqqRpy5MB9kgFmEPdPp62PGDqthrqKKeD776MSi3Vl5ekH6GLsw7xJYddD5iG4GNjSWwwGg9S6t5oZ8x8mACO5Ey4dFleqvyvSNwfiG716yTBfhrhvEY7dzBM62I7NyGn4V6_7Q=w400-h300-k-no" alt="Accro Coffee">
+    <div class="cafe-card" data-area="syp" data-busyness="quiet">
+      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwernqqRpy5MB9kgFmEPdPp62PGDqthrqKKeD776MSi3Vl5ekH6GLsw7xJYddD5iG4GNjSWwwGg9S6t5oZ8x8mACO5Ey4dFleqvyvSNwfiG716yTBfhrhvEY7dzBM62I7NyGn4V6_7Q=w400-h300-k-no" alt="April Coffee Lab">
       <div class="card-body">
         <div class="card-header">
           <div class="card-name-row">
-            <div class="card-name">Accro Coffee</div>
-            <div class="busyness" id="busy-accro"></div>
+            <div class="card-name">April Coffee Lab</div>
+            <div class="busyness" id="busy-april-replace"></div>
           </div>
           <span class="area-tag syp">Sai Ying Pun</span>
-          <span class="gm-rating"><span class="star">⭐</span> 4.4</span>
+          <span class="gm-rating"><span class="star">⭐</span> 4.5</span>
         </div>
-        <div class="card-address">Shop 2, G/F, 36 Third Street, Sai Ying Pun</div>
+        <div class="card-address">36 Third Street, Sai Ying Pun</div>
         <div class="card-hours">
           <span class="clock-icon">🕐</span>
           <div class="hours-lines">
-            <div class="hours-line unconfirmed">Hours not confirmed</div>
+            <div class="hours-line"><span class="day-label">Mon–Sun</span> 8am – 6pm</div>
           </div>
         </div>
-        <div class="card-desc">One of HK's OG specialty coffee pioneers. Compact and buzzy, with exceptional espresso and seasonal single-origins sourced from local roasters. The flat white is legendary.</div>
+        <div class="card-desc">The newest addition to SYP's coffee scene, April Coffee Lab brings meticulous pour-over technique and a clean, minimal space. A must-visit for purists who appreciate light roast single-origins done right.</div>
         <div class="specialties">
-          <span class="specialty-chip">Single Origin Espresso</span>
-          <span class="specialty-chip">Flat White</span>
-          <span class="specialty-chip">Seasonal Pour-Over</span>
+          <span class="specialty-chip">Pour-Over</span>
+          <span class="specialty-chip">Light Roast Single Origin</span>
+          <span class="specialty-chip">Chemex</span>
         </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=Accro+Coffee+36+Third+Street+Sai+Ying+Pun+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
+        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=April+Coffee+Lab+36+Third+Street+Sai+Ying+Pun+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
       </div>
     </div>
 
     <!-- Card 2 - SYP -->
-    <div class="cafe-card" data-area="syp">
+    <div class="cafe-card" data-area="syp" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweoKL-EbR7zd4B8_foDSfg2NbzKWNnyMSGA9Wyyxw5_96vQAvGa7KJxZ7mVJtLGFJrhPhxNzkZQbKuOXEXXDGOybcVCdx6tTaNjRqSuDYzKOLWs2w4IuikwASbgpkdRGKlDeND-QGg=w400-h300-k-no" alt="Postman Coffee">
       <div class="card-body">
         <div class="card-header">
@@ -639,7 +647,7 @@
     </div>
 
     <!-- Card 3 - SYP -->
-    <div class="cafe-card" data-area="syp">
+    <div class="cafe-card" data-area="syp" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweo9tQL2LMSeW62E8lx2wbnHcwrBlxM1kj0mbpzGgavTbRYPMouMAZQqDL64hz9C0sFQlAn8JfCQqJhI5CqNp5QVye0chkNjEDCXjXuzp5PT14NoLpQpFQLc4tcB_yr4bugU5kIR0qfJGktK=w400-h300-k-no" alt="Halfway Coffee">
       <div class="card-body">
         <div class="card-header">
@@ -668,7 +676,7 @@
     </div>
 
     <!-- Card 4 - SYP -->
-    <div class="cafe-card" data-area="syp">
+    <div class="cafe-card" data-area="syp" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweocht95_ZtTeFsbC46nSK0iZGwavicmnNXqKr02iqxwtqpE-B-U640et3o2uTw-At9v5Kbl64AubwQXwna4Li61_287d8yraPDwrvGzskiNh5VKr4towExRDZ98JEYMb1v-us-q=w400-h300-k-no" alt="Winstons Coffee">
       <div class="card-body">
         <div class="card-header">
@@ -698,7 +706,7 @@
     </div>
 
     <!-- Card 5 - SYP -->
-    <div class="cafe-card" data-area="syp">
+    <div class="cafe-card" data-area="syp" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweqXNRErNPMNPMLrcdNubmawLuf0-KLWaxVsvKqw0mJPBhcj4U9ZweUTujdLjE4sJhw1rmW924QCDj64QhbwgSKW29aqw09LEumDpZs8Zf3xpx9yfzD1wdJdVZQ2FLHU8uwCY7EU=w400-h300-k-no" alt="Bluebird Coffee">
       <div class="card-body">
         <div class="card-header">
@@ -726,37 +734,8 @@
       </div>
     </div>
 
-    <!-- Card 6 - SYP -->
-    <div class="cafe-card" data-area="syp">
-      <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweqVIK0RZHrgS502EH1IoduiZS_NTd95NVFIm4HZ3D-xvOD1T9l8tvAWgWhAW-9QUeMrBbr6F0KL04TqujSgVnMY0uVqvypwD74mmfl69QvueQLQV9uGpOv4jDjardKdv-yHlCa2Mw=w400-h300-k-no" alt="April Coffee Lab">
-      <div class="card-body">
-        <div class="card-header">
-          <div class="card-name-row">
-            <div class="card-name">April Coffee Lab</div>
-            <div class="busyness" id="busy-april"></div>
-          </div>
-          <span class="area-tag syp">Sai Ying Pun</span>
-          <span class="gm-rating"><span class="star">⭐</span> 4.5</span>
-        </div>
-        <div class="card-address">Sai Ying Pun (near Second Street)</div>
-        <div class="card-hours">
-          <span class="clock-icon">🕐</span>
-          <div class="hours-lines">
-            <div class="hours-line"><span class="day-label">Mon–Sun</span> 8am – 6pm</div>
-          </div>
-        </div>
-        <div class="card-desc">The newest addition to SYP's coffee scene, April Coffee Lab brings meticulous pour-over technique and a clean, minimal space. A must-visit for purists who appreciate light roast single-origins done right.</div>
-        <div class="specialties">
-          <span class="specialty-chip">Pour-Over</span>
-          <span class="specialty-chip">Light Roast Single Origin</span>
-          <span class="specialty-chip">Chemex</span>
-        </div>
-        <a class="directions-btn" href="https://www.google.com/maps/search/?api=1&query=April+Coffee+Lab+Sai+Ying+Pun+Hong+Kong" target="_blank" rel="noopener">📍 Get Directions</a>
-      </div>
-    </div>
-
     <!-- Card 7 - SYP -->
-    <div class="cafe-card" data-area="syp">
+    <div class="cafe-card" data-area="syp" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweorCjB666wRTPEOvzXJtX_kqdRq3Djil_N_ALYf4cg6pd9oxq_fYI3qgZBozgfzp6h7o2gn5RyhbH8MrNnnH5UOGwgLRUyohge10LaSsd_-J6TSGCiWZBPQtrYERiJevM7b6iwy=w400-h300-k-no" alt="OpenDoor Café">
       <div class="card-body">
         <div class="card-header">
@@ -786,7 +765,7 @@
     </div>
 
     <!-- Card 8 - SYP -->
-    <div class="cafe-card" data-area="syp">
+    <div class="cafe-card" data-area="syp" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwepJpKsy26VxYRt8T1Zrz1J9o-krq4H0zNHzAV5cdd6loHTWjlusJN3tDiLgSpHVqZxTHD0e0RB4abXy-JyZvf0Aw6WEGLSKPvi1HqBs93ze4TCoAYW21U_NDXhAy-Fg_IOWbOZP=w400-h300-k-no" alt="Stone Coffee">
       <div class="card-body">
         <div class="card-header">
@@ -816,7 +795,7 @@
     </div>
 
     <!-- Card 9 - SYP -->
-    <div class="cafe-card" data-area="syp">
+    <div class="cafe-card" data-area="syp" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweo6KJy-v2xhTtWUL7UiEvpdmH2r4k3RF4e04PuDhtElgNRUO7W-E36ENjbZbbAsi72aajw2Y4fojTOadz0DtvrZuehg14XxrMn2yimFf1WlhXyyba7_jF7PqS4FKIVOVa2dAtQgfTR7on4=w400-h300-k-no" alt="Intention Coffee">
       <div class="card-body">
         <div class="card-header">
@@ -846,7 +825,7 @@
     </div>
 
     <!-- Card 10 - SYP -->
-    <div class="cafe-card" data-area="syp">
+    <div class="cafe-card" data-area="syp" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweoZQkhvUjy45lr8DP7WJyj6v2XkRn4j-B0_8XmUISa-dRfEC6bvUNEzm52-rRjtNoF9CY_7ZVI1eRuPL74Ks56BrljxPA-MZiVRo-zZ2SHRc7dXROpReBDtCvUSl1UxrKM3S5lkO-0XPWKP=w400-h300-k-no" alt="Coffee by Zion">
       <div class="card-body">
         <div class="card-header">
@@ -876,7 +855,7 @@
     </div>
 
     <!-- Card 11 - HKU/STT -->
-    <div class="cafe-card" data-area="hku">
+    <div class="cafe-card" data-area="hku" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwerm0f1qZy0ZGKFMD5BC2X-GLLb1tGB3navbN36un-tf7y3mKwoOkb-8kf8xpZ0_5hkHyPz3pZNriLwN6Ph6tb-IrrYHC2nH5_sc7ta9dPdZud9Q08Dr4Hpo7qczX09YhUM9NT0=w400-h300-k-no" alt="Craft Coffee">
       <div class="card-body">
         <div class="card-header">
@@ -905,7 +884,7 @@
     </div>
 
     <!-- Card 12 - HKU/STT -->
-    <div class="cafe-card" data-area="hku">
+    <div class="cafe-card" data-area="hku" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwerI52L4Tq9h4JcDE8TyqOsMHG7bP9WpwywgKpUQOy15hmswzlXW6QwABNLprzkgCgCgj15XHelJpBjDJXLkdPh61CbTCNuZ3iBPjg2e9SXk867oXOGJm_A8K609UBElfwT1omMvXn9jbcjk=w400-h300-k-no" alt="Noc Coffee Co.">
       <div class="card-body">
         <div class="card-header">
@@ -934,7 +913,7 @@
     </div>
 
     <!-- Card 13 - HKU/STT -->
-    <div class="cafe-card" data-area="hku">
+    <div class="cafe-card" data-area="hku" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweqI9JA8bAGMfPaKQCmK9FOXmOL6n35cHSSCHJFO1TxMr8z8Yah5NcqBOOd5TtCPS48ZHcMFtcHvw8UBDtWg1uVI1AeT8RNy53HPLE20T1NODvz5kcgGGBsLb6X2802Xuqq3YLyJ9BV6FWJt=w400-h300-k-no" alt="The Coffee Academics">
       <div class="card-body">
         <div class="card-header">
@@ -964,7 +943,7 @@
     </div>
 
     <!-- Card 14 - HKU/STT -->
-    <div class="cafe-card" data-area="hku">
+    <div class="cafe-card" data-area="hku" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweq7fiUrmp90vT1QS5ypo3n6MQmpzk_VXppcfsScrMkIhukayVLjo3KQPCD5N5Y4mDhyi77HTg9VmhbB6NeWFTd0iVSty-7913x3F16y69Vd9Jd2sioq35deBd337tRhYgHhKCDJ=w400-h300-k-no" alt="Detour">
       <div class="card-body">
         <div class="card-header">
@@ -994,7 +973,7 @@
     </div>
 
     <!-- Card 15 - KT -->
-    <div class="cafe-card" data-area="kt">
+    <div class="cafe-card" data-area="kt" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwer47DuT6NoXwqF1I0WgHqT00DE50Mu9aIgoHPrNW7M9xlt80yIFrcWAXIrO4N-Zcm58D6RyBrXEmpRJ3iLX8T6z8d6t6yE-EDEWWkX452qbtsbI4FeMAY-I6t5y8E5BNcVYSHpcyg=w400-h300-k-no" alt="Kaffeine">
       <div class="card-body">
         <div class="card-header">
@@ -1024,7 +1003,7 @@
     </div>
 
     <!-- Card 16 - KT -->
-    <div class="cafe-card" data-area="kt">
+    <div class="cafe-card" data-area="kt data-busyness="quiet"">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweqqhRKeEc6_-lmvbR7AiqPU-xAS-YwNd3lG9X_MWPb3inyFNBgc3C0Iv2CWfpGZW16L_B2Or6J5AutUrQV6UlCi1nmPMlgjAHZvgqgVwjkCQytKCgJpZ0frJNRYxgnrrzWSKVBt=w400-h300-k-no" alt="Café Lamma">
       <div class="card-body">
         <div class="card-header">
@@ -1053,7 +1032,7 @@
     </div>
 
     <!-- Card 17 - KT -->
-    <div class="cafe-card" data-area="kt">
+    <div class="cafe-card" data-area="kt data-busyness="quiet"">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwepCISUPgPxdxLMOC-s1kmtmos3gUlj_BQ7jbR0JmZk2MuKEbnfQ2MUSexo3WryzuezmbpZ69xZ7SWCNgugv-s-9UGvc4XLtI3V1L0fUeFZZkF1icrt5ZzwzddTBpSp47dXW7_cF=w400-h300-k-no" alt="The Coffee Academics">
       <div class="card-body">
         <div class="card-header">
@@ -1083,7 +1062,7 @@
     </div>
 
     <!-- Card 18 - KT -->
-    <div class="cafe-card" data-area="kt">
+    <div class="cafe-card" data-area="kt data-busyness="quiet"">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwerPGgicV9JOGDCfU4BJR0pd6fddqW7DE7AHusBPMKiHb1lsH3ZZIIHdR3f6qT0yoUiu-KCYvqZrNh_YCPIk7ftr5IVJ67W5y-WeKpqqww9_FxAQvaD7fNY48guAt6r1jUxos_j3KnlewbBE=w400-h300-k-no" alt="Winstons Coffee">
       <div class="card-body">
         <div class="card-header">
@@ -1112,7 +1091,7 @@
     </div>
 
     <!-- Card 19 - KT -->
-    <div class="cafe-card" data-area="kt">
+    <div class="cafe-card" data-area="kt data-busyness="quiet"">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweqA2N4K0uTjK4H82QsKX34f1vswvKrVVP_nS_U1oWhIevT6cKEFnbAxJerHbTPCQCTEKzPiP7YlH-BlA9_mxV1bnk8tlQp9-PlaQby0Gxh-NH25yh1seRmUdXxyphabXTJzi1OfHA=w400-h300-k-no" alt="% Arabica">
       <div class="card-body">
         <div class="card-header">
@@ -1142,7 +1121,7 @@
     </div>
 
     <!-- Card 20 - KT -->
-    <div class="cafe-card" data-area="kt">
+    <div class="cafe-card" data-area="kt data-busyness="quiet"">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweq0dtXEu2dVkW7JJwybNujdFA4lLvC5j0_ZFk7IgHKUpIh5O01FhwFe-eDqdYf4uGIuia1khUuG5Oss13KNvdtrLSVFGIDK0a5UMKFTaJxKAZ6XzOz4Dl-M7HyTdnZKu7yBYtR9ag=w400-h300-k-no" alt="Waffling Beans">
       <div class="card-body">
         <div class="card-header">
@@ -1171,7 +1150,7 @@
     </div>
 
     <!-- Card 21 - KT -->
-    <div class="cafe-card" data-area="kt">
+    <div class="cafe-card" data-area="kt data-busyness="quiet"">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwepx9K5sLF_gvh6zSJLA7yZeoDQ54rGpMfJ2LOwgX04_-WyzXMqh4QVO6aw4XUWwoGsn3s-cL9eULqWl8YvoFBzaBRyjlbciS9YC2Bsl1KVpO0lsGkEbPiMILFdQlOdMQqCA2BuC=w400-h300-k-no" alt="The Cofftea Shop">
       <div class="card-body">
         <div class="card-header">
@@ -1200,7 +1179,7 @@
     </div>
 
     <!-- Card 22 - KT -->
-    <div class="cafe-card" data-area="kt">
+    <div class="cafe-card" data-area="kt data-busyness="quiet"">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwequyyxXonrNcoAfv5I7mV8UfEmAezsAIafef3jv9XfdQgwECK0Ps_f-EMIFOKijErrxxg1nuX32opG1dpfRvEJpU0TDOmuZxvT1JuLNHa9pO21v2wClH2nCRw8KtmSoQg1QX9dHXMcY6hjW=w400-h300-k-no" alt="Little Cove Espresso">
       <div class="card-body">
         <div class="card-header">
@@ -1229,7 +1208,7 @@
     </div>
 
     <!-- Card 23 - NEW: G'Day (Hill Road / HKU area) -->
-    <div class="cafe-card" data-area="hku">
+    <div class="cafe-card" data-area="hku data-busyness="quiet"">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwerty1B2C0R0jM2QXYZabc123/placeholder" alt="G'Day">
       <div class="card-body">
         <div class="card-header">
@@ -1259,7 +1238,7 @@
     </div>
 
     <!-- Card 24 - NEW: Hashtag Coffee (Hill Road area) -->
-    <div class="cafe-card" data-area="syp">
+    <div class="cafe-card" data-area="syp data-busyness="quiet"">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwertYZe5C0R0jM2QXYZabc456/placeholder" alt="Hashtag Coffee">
       <div class="card-body">
         <div class="card-header">
@@ -1289,7 +1268,7 @@
     </div>
 
     <!-- Card 25 - NEW: Fineprint (Hill Road / STT) -->
-    <div class="cafe-card" data-area="hku">
+    <div class="cafe-card" data-area="hku data-busyness="quiet"">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwertZXw5D0S0jM2QXYZabc789/placeholder" alt="Fineprint">
       <div class="card-body">
         <div class="card-header">
@@ -1318,7 +1297,7 @@
     </div>
 
     <!-- Card 26 - NEW: Catholic Café (Hill Road / HKU area) -->
-    <div class="cafe-card" data-area="hku">
+    <div class="cafe-card" data-area="hku data-busyness="quiet"">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwertYAA6E0T0jM2QXYZabc012/placeholder" alt="Catholic Café">
       <div class="card-body">
         <div class="card-header">
@@ -1348,7 +1327,7 @@
     </div>
 
     <!-- Card 27 - NEW: Crescent Coffee (Hill Road area) -->
-    <div class="cafe-card" data-area="syp">
+    <div class="cafe-card" data-area="syp data-busyness="quiet"">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwertBBB7F0U0jM2QXYZabc345/placeholder" alt="Crescent Coffee">
       <div class="card-body">
         <div class="card-header">
@@ -1400,13 +1379,13 @@
   const cafes = [
     // SYP
     {
-      id: 'accro', name: 'Accro Coffee',
+      id: 'april-replace', name: 'April Coffee Lab',
       area: 'Sai Ying Pun', areaKey: 'syp',
       lat: 22.2857, lng: 114.1430,
-      address: 'Shop 2, G/F, 36 Third Street, Sai Ying Pun',
-      gmapUrl: 'https://www.google.com/maps/place/Accro+Coffee/@22.2857,114.1430,17z',
-      peakType: 'lunch',
-      openHours: null // unconfirmed
+      address: '36 Third Street, Sai Ying Pun',
+      gmapUrl: 'https://www.google.com/maps/place/April+Coffee+Lab/@22.2857,114.1430,17z',
+      peakType: 'morning',
+      openHours: { weekdays:{open:'8:00am',close:'6:00pm'}, weekends:{open:'8:00am',close:'6:00pm'} }
     },
     {
       id: 'postman', name: 'Postman Coffee',
@@ -1443,15 +1422,6 @@
       gmapUrl: 'https://www.google.com/maps/place/Bluebird+Coffee/@22.2863,114.1420,17z',
       peakType: 'morning',
       openHours: { weekdays:{open:'8:30am',close:'6:00pm'}, weekends:{open:'8:30am',close:'6:00pm'} }
-    },
-    {
-      id: 'april', name: 'April Coffee Lab',
-      area: 'Sai Ying Pun', areaKey: 'syp',
-      lat: 22.2868, lng: 114.1415,
-      address: 'Sai Ying Pun (near Second Street)',
-      gmapUrl: 'https://www.google.com/maps/place/April+Coffee+Lab/@22.2868,114.1415,17z',
-      peakType: 'morning',
-      openHours: { weekdays:{open:'8:00am',close:'6:00pm'}, weekends:{open:'8:00am',close:'6:00pm'} }
     },
     {
       id: 'opendoor', name: 'OpenDoor Café',
@@ -1729,29 +1699,32 @@
   });
 
   // ── FILTER ──
-  let activeFilter = 'all';
+  let activeAreaFilter = 'all';
+  let activeBusynessFilter = 'all';
 
-  function applyFilter(filter) {
-    activeFilter = filter;
+  function applyFilter() {
     const cards = document.querySelectorAll('.cafe-card');
     const noResults = document.getElementById('noResults');
     let visible = 0;
 
     cards.forEach(card => {
       const area = card.dataset.area;
-      const show = filter === 'all' || area === filter;
+      const busyness = card.dataset.busyness || 'quiet';
+      const areaMatch = activeAreaFilter === 'all' || area === activeAreaFilter;
+      const busynessMatch = activeBusynessFilter === 'all' || busyness === activeBusynessFilter;
+      const show = areaMatch && busynessMatch;
       card.classList.toggle('hidden', !show);
       if (show) visible++;
     });
 
     noResults.classList.toggle('visible', visible === 0);
 
-    // Show/hide markers
+    // Show/hide markers — only area-filtered, always show all busyness levels
     const allKeys = ['syp', 'hku', 'kt'];
     allKeys.forEach(key => {
       if (markers[key]) {
         markers[key].forEach(m => {
-          if (filter === 'all' || key === filter) {
+          if (activeAreaFilter === 'all' || key === activeAreaFilter) {
             m.addTo(map);
           } else {
             m.remove();
@@ -1760,9 +1733,9 @@
       }
     });
 
-    // Re-center map
-    if (filter !== 'all') {
-      const filterCafes = cafes.filter(c => c.areaKey === filter);
+    // Re-center map based on area filter
+    if (activeAreaFilter !== 'all') {
+      const filterCafes = cafes.filter(c => c.areaKey === activeAreaFilter);
       if (filterCafes.length) {
         const bounds = L.latLngBounds(filterCafes.map(c => [c.lat, c.lng]));
         map.fitBounds(bounds, { padding: [50, 50] });
@@ -1772,11 +1745,23 @@
     }
   }
 
-  document.querySelectorAll('.filter-btn').forEach(btn => {
+  // Area filter buttons
+  document.querySelectorAll('[data-filter]').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      applyFilter(btn.dataset.filter);
+      activeAreaFilter = btn.dataset.filter;
+      applyFilter();
+    });
+  });
+
+  // Busyness filter buttons
+  document.querySelectorAll('[data-busyness-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-busyness-filter]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeBusynessFilter = btn.dataset.busynessFilter;
+      applyFilter();
     });
   });
 
@@ -1881,19 +1866,19 @@
         // Brunch rush — staggered peak
         const brunchMid = 10 * 60; // 10:00
         const diff = Math.abs(hkTotal - (brunchMid + offset));
-        if (diff < 45) return { level: 'verybusy', label: 'Brunch Rush 🔴' };
-        return { level: 'busy', label: 'Brunch Busy 🌟' };
+        if (diff < 45) return { level: 'verybusy', label: '🔴 Very Busy' };
+        return { level: 'busy', label: '🌟 Busy' };
       }
       if (hkH >= 11 && hkH < 13) {
         // Brunch tail + lunch start
-        if (hkH >= 12 && hkH < 13) return { level: 'verybusy', label: 'Lunch Peak 🔴' };
-        return { level: 'busy', label: 'Late Brunch 🌟' };
+        if (hkH >= 12 && hkH < 13) return { level: 'verybusy', label: '🔴 Very Busy' };
+        return { level: 'busy', label: '🌟 Busy' };
       }
-      if (hkH >= 13 && hkH < 15) return { level: 'moderate', label: 'Afternoon 🟡' };
-      if (hkH >= 15 && hkH < 18) return { level: 'moderate', label: 'Slow Afternoon 🟡' };
-      if (hkH >= 18) return { level: 'quiet', label: 'Evening Quiet 🟢' };
+      if (hkH >= 13 && hkH < 15) return { level: 'moderate', label: '🟡 Moderate' };
+      if (hkH >= 15 && hkH < 18) return { level: 'moderate', label: '🟡 Moderate' };
+      if (hkH >= 18) return { level: 'quiet', label: '🟢 Quiet' };
       // Before 9am
-      return { level: 'quiet', label: 'Opening Soon 🟢' };
+      return { level: 'quiet', label: '🟢 Quiet' };
     }
 
     // ── Weekday pattern ──
@@ -1904,30 +1889,30 @@
     // Student morning rush 8–9am (staggered)
     if (hkH >= 8 && hkH < 9) {
       const diff = Math.abs(hkTotal - (8 * 60 + 30 + offset));
-      if (diff < 20) return { level: 'busy', label: 'Morning Rush 🌟' };
-      return { level: 'moderate', label: 'Morning 🟡' };
+      if (diff < 20) return { level: 'busy', label: '🌟 Busy' };
+      return { level: 'moderate', label: '🟡 Moderate' };
     }
 
     // Lunch peak 11:30–13:30 — staggered per cafe
     if (hkTotal >= lunchStart && hkTotal <= lunchEnd) {
       const diff = Math.abs(hkTotal - lunchPeak);
       // peak within ±20min = verybusy; otherwise busy
-      if (diff < 20) return { level: 'verybusy', label: 'Lunch Peak 🔴' };
-      return { level: 'busy', label: 'Lunch Busy 🌟' };
+      if (diff < 20) return { level: 'verybusy', label: '🔴 Very Busy' };
+      return { level: 'busy', label: '🌟 Busy' };
     }
 
     // Mid-afternoon 3–5pm moderate
-    if (hkH >= 15 && hkH < 17) return { level: 'moderate', label: 'Afternoon 🟡' };
+    if (hkH >= 15 && hkH < 17) return { level: 'moderate', label: '🟡 Moderate' };
 
     // Evening 6–8pm afterwork
-    if (hkH >= 18 && hkH < 20) return { level: 'moderate', label: 'Afterwork 🟡' };
+    if (hkH >= 18 && hkH < 20) return { level: 'moderate', label: '🟡 Moderate' };
 
     // Quiet: before 8am or after 8pm
-    if (hkH < 8) return { level: 'quiet', label: 'Pre-Opening 🟢' };
-    if (hkH >= 20) return { level: 'quiet', label: 'Evening Quiet 🟢' };
+    if (hkH < 8) return { level: 'quiet', label: '🟢 Quiet' };
+    if (hkH >= 20) return { level: 'quiet', label: '🟢 Quiet' };
 
-    // Shoulder: 9–11:30am and 13:30–15:00
-    return { level: 'moderate', label: 'Shoulder 🟡' };
+    // Moderate: 9–11:30am and 13:30–15:00
+    return { level: 'moderate', label: '🟡 Moderate' };
   }
 
   function updateBusyness() {
@@ -1939,7 +1924,14 @@
       const { level, label } = getCafeBusyness(cafe);
       el.className = `busyness ${level}`;
       el.innerHTML = `<span class="dot"></span>${label}`;
+      // Sync data-busyness attribute on the parent card
+      const card = el.closest('.cafe-card');
+      if (card) {
+        card.dataset.busyness = level;
+      }
     });
+    // Re-apply filters in case busyness changed
+    applyFilter();
   }
 
   // Run immediately then every minute
