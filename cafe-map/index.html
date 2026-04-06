@@ -153,6 +153,11 @@
       color: #fff;
     }
 
+    .filter-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
     /* ── LAYOUT ── */
     .container {
       max-width: 1200px;
@@ -243,6 +248,15 @@
 
     .cafe-card.hidden { display: none; }
 
+    /* UX Fix #4: De-emphasize closed cafes */
+    .cafe-card.is-closed {
+      opacity: 0.45;
+    }
+    .cafe-card.is-closed:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
     .card-img {
       width: 100%;
       height: 170px;
@@ -260,17 +274,18 @@
     .card-header {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: center;
       margin-bottom: 0.35rem;
-      gap: 0.4rem;
+      gap: 0.5rem;
     }
 
     .card-name-row {
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      flex: 1;
+      flex: 1 1 auto;
       min-width: 0;
+      flex-wrap: wrap;
     }
 
     .card-name {
@@ -279,7 +294,7 @@
       font-weight: 700;
       color: var(--cream);
       line-height: 1.25;
-      flex: 1;
+      flex: 1 1 auto;
       min-width: 0;
     }
 
@@ -481,6 +496,45 @@
 
     .no-results.visible { display: block; }
 
+    /* ── LIVE COUNT BADGE ── */
+    #resultCount {
+      display: inline-flex;
+      align-items: center;
+      margin-left: 0.6rem;
+      padding: 0.15rem 0.6rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+    #resultCount.has-filters {
+      background: rgba(200, 136, 74, 0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── OPEN BADGE ── */
+    .open-badge {
+      display: none;
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: #50c878;
+      letter-spacing: 0.03em;
+      margin-left: 0.3rem;
+      flex-shrink: 0;
+    }
+    .open-badge::before {
+      content: '● ';
+      font-size: 0.5rem;
+      vertical-align: middle;
+    }
+    .open-badge.show { display: inline; }
+
     /* ── FOOTER ── */
     footer {
       text-align: center;
@@ -587,7 +641,7 @@
 <div class="container">
   <div id="map"></div>
 
-  <h2 class="section-title">All Cafés</h2>
+  <h2 class="section-title">All Cafés <span id="resultCount"></span></h2>
   <div class="no-results" id="noResults">No cafés match this filter.</div>
   <div class="cafe-grid" id="cafeGrid">
 
@@ -601,6 +655,7 @@
             <div class="busyness" id="busy-april-replace"></div>
           </div>
           <span class="area-tag syp">Sai Ying Pun</span>
+          <span class="open-badge" id="open-april-replace"></span>
           <span class="gm-rating"><span class="star">⭐</span> 4.5</span>
         </div>
         <div class="card-address">36 Third Street, Sai Ying Pun</div>
@@ -630,6 +685,7 @@
             <div class="busyness" id="busy-postman"></div>
           </div>
           <span class="area-tag syp">Sai Ying Pun</span>
+          <span class="open-badge" id="open-postman"></span>
           <span class="gm-rating no-rating">No rating</span>
         </div>
         <div class="card-address">2A Third Street, Sai Ying Pun</div>
@@ -659,6 +715,7 @@
             <div class="busyness" id="busy-halfway"></div>
           </div>
           <span class="area-tag syp">Sai Ying Pun</span>
+          <span class="open-badge" id="open-halfway"></span>
           <span class="gm-rating"><span class="star">⭐</span> 4.2</span>
         </div>
         <div class="card-address">G/F, 8 Second Street, Sai Ying Pun</div>
@@ -688,6 +745,7 @@
             <div class="busyness" id="busy-winstons-syp"></div>
           </div>
           <span class="area-tag syp">Sai Ying Pun</span>
+          <span class="open-badge" id="open-winstons-syp"></span>
           <span class="gm-rating"><span class="star">⭐</span> 4.6</span>
         </div>
         <div class="card-address">Shop 4, G/F, 213 Queen's Road West, Sai Ying Pun</div>
@@ -718,6 +776,7 @@
             <div class="busyness" id="busy-bluebird"></div>
           </div>
           <span class="area-tag syp">Sai Ying Pun</span>
+          <span class="open-badge" id="open-bluebird"></span>
           <span class="gm-rating"><span class="star">⭐</span> 4.3</span>
         </div>
         <div class="card-address">Shop B, G/F, Lucky Commercial Centre, 103 Des Voeux Road West, Sai Ying Pun</div>
@@ -747,6 +806,7 @@
             <div class="busyness" id="busy-opendoor"></div>
           </div>
           <span class="area-tag syp">Sai Ying Pun</span>
+          <span class="open-badge" id="open-opendoor"></span>
           <span class="gm-rating"><span class="star">⭐</span> 4.1</span>
         </div>
         <div class="card-address">G/F, 120 Connaught Road West, Sai Ying Pun</div>
@@ -777,6 +837,7 @@
             <div class="busyness" id="busy-stone"></div>
           </div>
           <span class="area-tag syp">Sai Ying Pun</span>
+          <span class="open-badge" id="open-stone"></span>
           <span class="gm-rating"><span class="star">⭐</span> 4.8</span>
         </div>
         <div class="card-address">G/F, 56 Centre Street, Sai Ying Pun</div>
@@ -807,6 +868,7 @@
             <div class="busyness" id="busy-intention"></div>
           </div>
           <span class="area-tag syp">Sai Ying Pun</span>
+          <span class="open-badge" id="open-intention"></span>
           <span class="gm-rating"><span class="star">⭐</span> 4.0</span>
         </div>
         <div class="card-address">27 High Street, Sai Ying Pun</div>
@@ -837,6 +899,7 @@
             <div class="busyness" id="busy-zion"></div>
           </div>
           <span class="area-tag syp">Sai Ying Pun</span>
+          <span class="open-badge" id="open-zion"></span>
           <span class="gm-rating"><span class="star">⭐</span> 4.3</span>
         </div>
         <div class="card-address">Chun King Court, 1-3 First Street, Sai Ying Pun</div>
@@ -867,6 +930,7 @@
             <div class="busyness" id="busy-craft"></div>
           </div>
           <span class="area-tag hku">HKU / Shek Tong Tsui</span>
+          <span class="open-badge" id="open-craft"></span>
           <span class="gm-rating"><span class="star">⭐</span> 4.0</span>
         </div>
         <div class="card-address">Shop A, G/F, 72 Second Street, Sai Ying Pun</div>
@@ -896,6 +960,7 @@
             <div class="busyness" id="busy-noc"></div>
           </div>
           <span class="area-tag hku">HKU / Shek Tong Tsui</span>
+          <span class="open-badge" id="open-noc"></span>
           <span class="gm-rating"><span class="star">⭐</span> 4.3</span>
         </div>
         <div class="card-address">Shop 4, G/F, Bohemian House, 321 Des Voeux Road West, Sai Ying Pun</div>
@@ -925,6 +990,7 @@
             <div class="busyness" id="busy-academics-hku"></div>
           </div>
           <span class="area-tag hku">HKU / Shek Tong Tsui</span>
+          <span class="open-badge" id="open-academics-hku"></span>
           <span class="gm-rating"><span class="star">⭐</span> 4.0</span>
         </div>
         <div class="card-address">Near HKU MTR Station Exit A1</div>
@@ -955,6 +1021,7 @@
             <div class="busyness" id="busy-detour"></div>
           </div>
           <span class="area-tag hku">HKU / Shek Tong Tsui</span>
+          <span class="open-badge" id="open-detour"></span>
           <span class="gm-rating"><span class="star">⭐</span> 4.3</span>
         </div>
         <div class="card-address">Sai Ying Pun / Shek Tong Tsui</div>
@@ -985,6 +1052,7 @@
             <div class="busyness" id="busy-kaffeine"></div>
           </div>
           <span class="area-tag kt">Kennedy Town</span>
+          <span class="open-badge" id="open-kaffeine"></span>
           <span class="gm-rating"><span class="star">⭐</span> 3.9</span>
         </div>
         <div class="card-address">G/F, 8 Smithfield Road, Kennedy Town</div>
@@ -1006,7 +1074,7 @@
     </div>
 
     <!-- Card 16 - KT -->
-    <div class="cafe-card" data-area="kt data-busyness="quiet"">
+    <div class="cafe-card" data-area="kt" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweqqhRKeEc6_-lmvbR7AiqPU-xAS-YwNd3lG9X_MWPb3inyFNBgc3C0Iv2CWfpGZW16L_B2Or6J5AutUrQV6UlCi1nmPMlgjAHZvgqgVwjkCQytKCgJpZ0frJNRYxgnrrzWSKVBt=w400-h300-k-no" alt="Café Lamma">
       <div class="card-body">
         <div class="card-header">
@@ -1015,6 +1083,7 @@
             <div class="busyness" id="busy-lamma"></div>
           </div>
           <span class="area-tag kt">Kennedy Town</span>
+          <span class="open-badge" id="open-lamma"></span>
           <span class="gm-rating no-rating">No rating</span>
         </div>
         <div class="card-address">G/F, 36 Catchick Street, Kennedy Town</div>
@@ -1035,7 +1104,7 @@
     </div>
 
     <!-- Card 17 - KT -->
-    <div class="cafe-card" data-area="kt data-busyness="quiet"">
+    <div class="cafe-card" data-area="kt" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwepCISUPgPxdxLMOC-s1kmtmos3gUlj_BQ7jbR0JmZk2MuKEbnfQ2MUSexo3WryzuezmbpZ69xZ7SWCNgugv-s-9UGvc4XLtI3V1L0fUeFZZkF1icrt5ZzwzddTBpSp47dXW7_cF=w400-h300-k-no" alt="The Coffee Academics">
       <div class="card-body">
         <div class="card-header">
@@ -1044,6 +1113,7 @@
             <div class="busyness" id="busy-academics-kt"></div>
           </div>
           <span class="area-tag kt">Kennedy Town</span>
+          <span class="open-badge" id="open-academics-kt"></span>
           <span class="gm-rating"><span class="star">⭐</span> 4.0</span>
         </div>
         <div class="card-address">45 Catchick Street, Kennedy Town</div>
@@ -1065,7 +1135,7 @@
     </div>
 
     <!-- Card 18 - KT -->
-    <div class="cafe-card" data-area="kt data-busyness="quiet"">
+    <div class="cafe-card" data-area="kt" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwerPGgicV9JOGDCfU4BJR0pd6fddqW7DE7AHusBPMKiHb1lsH3ZZIIHdR3f6qT0yoUiu-KCYvqZrNh_YCPIk7ftr5IVJ67W5y-WeKpqqww9_FxAQvaD7fNY48guAt6r1jUxos_j3KnlewbBE=w400-h300-k-no" alt="Winstons Coffee">
       <div class="card-body">
         <div class="card-header">
@@ -1074,6 +1144,7 @@
             <div class="busyness" id="busy-winstons-kt"></div>
           </div>
           <span class="area-tag kt">Kennedy Town</span>
+          <span class="open-badge" id="open-winstons-kt"></span>
           <span class="gm-rating"><span class="star">⭐</span> 4.7</span>
         </div>
         <div class="card-address">Kennedy Town, near Catchick Street</div>
@@ -1094,7 +1165,7 @@
     </div>
 
     <!-- Card 19 - KT -->
-    <div class="cafe-card" data-area="kt data-busyness="quiet"">
+    <div class="cafe-card" data-area="kt" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweqA2N4K0uTjK4H82QsKX34f1vswvKrVVP_nS_U1oWhIevT6cKEFnbAxJerHbTPCQCTEKzPiP7YlH-BlA9_mxV1bnk8tlQp9-PlaQby0Gxh-NH25yh1seRmUdXxyphabXTJzi1OfHA=w400-h300-k-no" alt="% Arabica">
       <div class="card-body">
         <div class="card-header">
@@ -1103,6 +1174,7 @@
             <div class="busyness" id="busy-arabica"></div>
           </div>
           <span class="area-tag kt">Kennedy Town</span>
+          <span class="open-badge" id="open-arabica"></span>
           <span class="gm-rating"><span class="star">⭐</span> 4.1</span>
         </div>
         <div class="card-address">No. 1 Davis Street, Kennedy Town</div>
@@ -1124,7 +1196,7 @@
     </div>
 
     <!-- Card 20 - KT -->
-    <div class="cafe-card" data-area="kt data-busyness="quiet"">
+    <div class="cafe-card" data-area="kt" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweq0dtXEu2dVkW7JJwybNujdFA4lLvC5j0_ZFk7IgHKUpIh5O01FhwFe-eDqdYf4uGIuia1khUuG5Oss13KNvdtrLSVFGIDK0a5UMKFTaJxKAZ6XzOz4Dl-M7HyTdnZKu7yBYtR9ag=w400-h300-k-no" alt="Waffling Beans">
       <div class="card-body">
         <div class="card-header">
@@ -1133,6 +1205,7 @@
             <div class="busyness" id="busy-waffling"></div>
           </div>
           <span class="area-tag kt">Kennedy Town</span>
+          <span class="open-badge" id="open-waffling"></span>
           <span class="gm-rating no-rating">No rating</span>
         </div>
         <div class="card-address">4-8 North Street, Kennedy Town</div>
@@ -1153,7 +1226,7 @@
     </div>
 
     <!-- Card 21 - KT -->
-    <div class="cafe-card" data-area="kt data-busyness="quiet"">
+    <div class="cafe-card" data-area="kt" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwepx9K5sLF_gvh6zSJLA7yZeoDQ54rGpMfJ2LOwgX04_-WyzXMqh4QVO6aw4XUWwoGsn3s-cL9eULqWl8YvoFBzaBRyjlbciS9YC2Bsl1KVpO0lsGkEbPiMILFdQlOdMQqCA2BuC=w400-h300-k-no" alt="The Cofftea Shop">
       <div class="card-body">
         <div class="card-header">
@@ -1162,6 +1235,7 @@
             <div class="busyness" id="busy-cofftea"></div>
           </div>
           <span class="area-tag kt">Kennedy Town</span>
+          <span class="open-badge" id="open-cofftea"></span>
           <span class="gm-rating"><span class="star">⭐</span> 4.6</span>
         </div>
         <div class="card-address">78-86 Catchick Street, Kennedy Town</div>
@@ -1182,7 +1256,7 @@
     </div>
 
     <!-- Card 22 - KT -->
-    <div class="cafe-card" data-area="kt data-busyness="quiet"">
+    <div class="cafe-card" data-area="kt" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwequyyxXonrNcoAfv5I7mV8UfEmAezsAIafef3jv9XfdQgwECK0Ps_f-EMIFOKijErrxxg1nuX32opG1dpfRvEJpU0TDOmuZxvT1JuLNHa9pO21v2wClH2nCRw8KtmSoQg1QX9dHXMcY6hjW=w400-h300-k-no" alt="Little Cove Espresso">
       <div class="card-body">
         <div class="card-header">
@@ -1191,6 +1265,7 @@
             <div class="busyness" id="busy-littlecove"></div>
           </div>
           <span class="area-tag kt">Kennedy Town</span>
+          <span class="open-badge" id="open-littlecove"></span>
           <span class="gm-rating no-rating">No rating</span>
         </div>
         <div class="card-address">Shop 3, G/F, New Fortune House, 3-5 New Praya, Kennedy Town</div>
@@ -1211,7 +1286,7 @@
     </div>
 
     <!-- Card 23 - NEW: G'Day (Hill Road / HKU area) -->
-    <div class="cafe-card" data-area="hku data-busyness="quiet"">
+    <div class="cafe-card" data-area="hku" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwerty1B2C0R0jM2QXYZabc123/placeholder" alt="G'Day">
       <div class="card-body">
         <div class="card-header">
@@ -1220,6 +1295,7 @@
             <div class="busyness" id="busy-gday"></div>
           </div>
           <span class="area-tag hku">HKU / Shek Tong Tsui</span>
+          <span class="open-badge" id="open-gday"></span>
           <span class="gm-rating no-rating">No rating</span>
         </div>
         <div class="card-address">Shop A, G/F, Nam Cheong Building, 48-52 Hill Road, Shek Tong Tsui</div>
@@ -1241,7 +1317,7 @@
     </div>
 
     <!-- Card 24 - NEW: Hashtag Coffee (Hill Road area) -->
-    <div class="cafe-card" data-area="syp data-busyness="quiet"">
+    <div class="cafe-card" data-area="syp" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwertYZe5C0R0jM2QXYZabc456/placeholder" alt="Hashtag Coffee">
       <div class="card-body">
         <div class="card-header">
@@ -1250,6 +1326,7 @@
             <div class="busyness" id="busy-hashtag"></div>
           </div>
           <span class="area-tag syp">Sai Ying Pun</span>
+          <span class="open-badge" id="open-hashtag"></span>
           <span class="gm-rating no-rating">No rating</span>
         </div>
         <div class="card-address">Shop B, G/F, 99 High Street, Sai Ying Pun</div>
@@ -1271,7 +1348,7 @@
     </div>
 
     <!-- Card 25 - NEW: Fineprint (Hill Road / STT) -->
-    <div class="cafe-card" data-area="hku data-busyness="quiet"">
+    <div class="cafe-card" data-area="hku" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwertZXw5D0S0jM2QXYZabc789/placeholder" alt="Fineprint">
       <div class="card-body">
         <div class="card-header">
@@ -1280,6 +1357,7 @@
             <div class="busyness" id="busy-fineprint"></div>
           </div>
           <span class="area-tag hku">HKU / Shek Tong Tsui</span>
+          <span class="open-badge" id="open-fineprint"></span>
           <span class="gm-rating no-rating">No rating</span>
         </div>
         <div class="card-address">G/F, 8-12 South Lane, Shek Tong Tsui</div>
@@ -1300,7 +1378,7 @@
     </div>
 
     <!-- Card 26 - NEW: Catholic Café (Hill Road / HKU area) -->
-    <div class="cafe-card" data-area="hku data-busyness="quiet"">
+    <div class="cafe-card" data-area="hku" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwertYAA6E0T0jM2QXYZabc012/placeholder" alt="Catholic Café">
       <div class="card-body">
         <div class="card-header">
@@ -1309,6 +1387,7 @@
             <div class="busyness" id="busy-catholic"></div>
           </div>
           <span class="area-tag hku">HKU / Shek Tong Tsui</span>
+          <span class="open-badge" id="open-catholic"></span>
           <span class="gm-rating no-rating">No rating</span>
         </div>
         <div class="card-address">Near HKU Station / Hill Road, Shek Tong Tsui</div>
@@ -1330,7 +1409,7 @@
     </div>
 
     <!-- Card 27 - NEW: Crescent Coffee (Hill Road area) -->
-    <div class="cafe-card" data-area="syp data-busyness="quiet"">
+    <div class="cafe-card" data-area="syp" data-busyness="quiet">
       <img class="card-img" src="https://lh3.googleusercontent.com/gps-cs-s/AHVAwertBBB7F0U0jM2QXYZabc345/placeholder" alt="Crescent Coffee">
       <div class="card-body">
         <div class="card-header">
@@ -1339,6 +1418,7 @@
             <div class="busyness" id="busy-crescent"></div>
           </div>
           <span class="area-tag syp">Sai Ying Pun</span>
+          <span class="open-badge" id="open-crescent"></span>
           <span class="gm-rating no-rating">No rating</span>
         </div>
         <div class="card-address">First Street / Queen's Road West area, Sai Ying Pun</div>
@@ -1722,6 +1802,17 @@
 
     noResults.classList.toggle('visible', visible === 0);
 
+    // UX Fix #5: Live result count badge
+    const countEl = document.getElementById('resultCount');
+    const hasFilters = activeAreaFilter !== 'all' || activeBusynessFilter !== 'all';
+    if (hasFilters) {
+      countEl.textContent = `${visible} shown`;
+      countEl.classList.add('has-filters');
+    } else {
+      countEl.textContent = `${visible} cafés`;
+      countEl.classList.remove('has-filters');
+    }
+
     // Show/hide markers — only area-filtered, always show all busyness levels
     const allKeys = ['syp', 'hku', 'kt'];
     allKeys.forEach(key => {
@@ -1929,7 +2020,17 @@
         el.className = `busyness ${level}`;
         el.innerHTML = `<span class="dot"></span>${label}`;
         const card = el.closest('.cafe-card');
-        if (card) card.dataset.busyness = level;
+        if (card) {
+          card.dataset.busyness = level;
+          // UX Fix #3: Open badge — show "Open" only for currently-open cafes
+          const openBadge = card.querySelector('.open-badge');
+          const isClosed = level === 'closed';
+          if (openBadge) {
+            openBadge.classList.toggle('show', !isClosed);
+          }
+          // UX Fix #4: De-emphasize closed cards
+          card.classList.toggle('is-closed', isClosed);
+        }
       });
     } catch(e) { console.warn('busyness error:', e); }
     try { applyFilter(); } catch(e) { console.warn('filter error:', e); }
