@@ -294,6 +294,9 @@
       font-weight: 600;
       white-space: nowrap;
       flex-shrink: 0;
+      background: rgba(60,190,100,0.15);
+      color: #50c878;
+      border: 1px solid rgba(60,190,100,0.3);
     }
 
     .busyness .dot {
@@ -1629,9 +1632,8 @@
     tap: true
   }).setView([22.2835, 114.136], 15);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd',
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+    attribution: '&copy; <a href="https://www.esri.com/">Esri</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19
   }).addTo(map);
 
@@ -1761,7 +1763,7 @@
     btn.addEventListener('click', () => {
       document.querySelectorAll('[data-busyness-filter]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      activeBusynessFilter = btn.dataset.busynessFilter;
+      activeBusynessFilter = btn.getAttribute('data-busyness-filter');
       applyFilter();
     });
   });
@@ -1917,22 +1919,20 @@
   }
 
   function updateBusyness() {
-    updateClockAndHint();
-    document.querySelectorAll('.busyness').forEach(el => {
-      const id = el.id.replace('busy-', '');
-      const cafe = window._cafeMap ? window._cafeMap[id] : null;
-      if (!cafe) return;
-      const { level, label } = getCafeBusyness(cafe);
-      el.className = `busyness ${level}`;
-      el.innerHTML = `<span class="dot"></span>${label}`;
-      // Sync data-busyness attribute on the parent card
-      const card = el.closest('.cafe-card');
-      if (card) {
-        card.dataset.busyness = level;
-      }
-    });
-    // Re-apply filters in case busyness changed
-    applyFilter();
+    try { updateClockAndHint(); } catch(e) { console.warn('clock error:', e); }
+    try {
+      document.querySelectorAll('.busyness').forEach(el => {
+        const id = el.id.replace('busy-', '');
+        const cafe = window._cafeMap ? window._cafeMap[id] : null;
+        if (!cafe) return;
+        const { level, label } = getCafeBusyness(cafe);
+        el.className = `busyness ${level}`;
+        el.innerHTML = `<span class="dot"></span>${label}`;
+        const card = el.closest('.cafe-card');
+        if (card) card.dataset.busyness = level;
+      });
+    } catch(e) { console.warn('busyness error:', e); }
+    try { applyFilter(); } catch(e) { console.warn('filter error:', e); }
   }
 
   // Run immediately then every minute
