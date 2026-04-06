@@ -283,7 +283,7 @@
       min-width: 0;
     }
 
-    /* ── BUSYNESS INDICATOR ── */
+    /* ── BUSYNESS INDICATOR (5-level system) ── */
     .busyness {
       display: inline-flex;
       align-items: center;
@@ -296,10 +296,6 @@
       flex-shrink: 0;
     }
 
-    .busyness.red    { background: rgba(220,80,60,0.2);   color: #e05040; border: 1px solid rgba(220,80,60,0.4); }
-    .busyness.yellow { background: rgba(200,170,60,0.18);  color: #c8aa3c; border: 1px solid rgba(200,170,60,0.35); }
-    .busyness.green  { background: rgba(60,180,100,0.18);  color: #50c87a; border: 1px solid rgba(60,180,100,0.35); }
-
     .busyness .dot {
       width: 6px;
       height: 6px;
@@ -307,9 +303,30 @@
       flex-shrink: 0;
     }
 
-    .busyness.red    .dot { background: #e05040; box-shadow: 0 0 4px #e05040aa; }
-    .busyness.yellow .dot { background: #c8aa3c; box-shadow: 0 0 4px #c8aa3caa; }
-    .busyness.green  .dot { background: #50c87a; box-shadow: 0 0 4px #50c87aaa; }
+    /* 🔴 Very Busy — Lunch peak / main rush */
+    .busyness.verybusy { background: rgba(220,60,40,0.22);  color: #e04030; border: 1px solid rgba(220,60,40,0.45); }
+    .busyness.verybusy .dot { background: #e04030; box-shadow: 0 0 5px #e04030bb; animation: pulse-dot 1.5s ease-in-out infinite; }
+
+    /* 🌟 Busy — Secondary rush (morning) */
+    .busyness.busy     { background: rgba(240,130,30,0.2);  color: #e08828; border: 1px solid rgba(240,130,30,0.4); }
+    .busyness.busy     .dot { background: #e08828; box-shadow: 0 0 4px #e08828aa; }
+
+    /* 🟡 Moderate — Shoulder hours */
+    .busyness.moderate { background: rgba(200,170,50,0.18); color: #c8aa3c; border: 1px solid rgba(200,170,50,0.35); }
+    .busyness.moderate .dot { background: #c8aa3c; box-shadow: 0 0 4px #c8aa3caa; }
+
+    /* 🟢 Quiet — Early morning / late evening */
+    .busyness.quiet    { background: rgba(60,190,100,0.18); color: #50c878; border: 1px solid rgba(60,190,100,0.35); }
+    .busyness.quiet    .dot { background: #50c878; box-shadow: 0 0 4px #50c878aa; }
+
+    /* ⚫️ Closed — Outside operating hours */
+    .busyness.closed   { background: rgba(120,100,80,0.18);  color: #887060; border: 1px solid rgba(120,100,80,0.35); }
+    .busyness.closed   .dot { background: #887060; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
 
     .area-tag {
       flex-shrink: 0;
@@ -541,7 +558,7 @@
   <p class="eyebrow">Hong Kong Specialty Coffee</p>
   <h1>The Best Cafés in <span>Western District</span></h1>
   <p>Handpicked specialty coffee spots across Sai Ying Pun, HKU &amp; Kennedy Town — brews, pour-overs, and third-wave craft in one map.</p>
-  <p class="credit"><strong>Desmond Ho</strong> &amp; <strong>Caca 🍫</strong> · Powered by VV 🤖</p>
+  <p class="credit">A project by <strong>Desmond Ho</strong></p>
 </header>
 
 <div class="live-clock">
@@ -1216,9 +1233,11 @@
 
 <footer>
   <div class="footer-busyness">
-    <div class="footer-legend"><div class="dot" style="background:#e05040;box-shadow:0 0 4px #e05040aa;"></div> Peak hours (busy)</div>
-    <div class="footer-legend"><div class="dot" style="background:#c8aa3c;box-shadow:0 0 4px #c8aa3caa;"></div> Shoulder hours</div>
-    <div class="footer-legend"><div class="dot" style="background:#50c87a;box-shadow:0 0 4px #50c87aaa;"></div> Quiet hours</div>
+    <div class="footer-legend"><div class="dot" style="background:#e04030;box-shadow:0 0 5px #e04030bb;"></div> 🔴 Very Busy</div>
+    <div class="footer-legend"><div class="dot" style="background:#e08828;box-shadow:0 0 4px #e08828aa;"></div> 🌟 Busy</div>
+    <div class="footer-legend"><div class="dot" style="background:#c8aa3c;box-shadow:0 0 4px #c8aa3caa;"></div> 🟡 Moderate</div>
+    <div class="footer-legend"><div class="dot" style="background:#50c878;box-shadow:0 0 4px #50c878aa;"></div> 🟢 Quiet</div>
+    <div class="footer-legend"><div class="dot" style="background:#887060;"></div> ⚫️ Closed</div>
   </div>
   <p>Specialty coffee map of Hong Kong &mdash; Sai Ying Pun &bull; HKU &bull; Kennedy Town</p>
 </footer>
