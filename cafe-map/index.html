@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>HK Specialty Coffee Map</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1453,7 +1453,7 @@
   <p>Specialty coffee map of Hong Kong &mdash; Sai Ying Pun &bull; HKU &bull; Kennedy Town</p>
 </footer>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
   // ── CAFE DATA ──
   // openHours: { weekdays:{open,close}, weekends:{open,close}, closedDays:[0..6] }
@@ -1712,8 +1712,8 @@
     tap: true
   }).setView([22.2835, 114.136], 15);
 
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
-    attribution: '&copy; <a href="https://www.esri.com/">Esri</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19
   }).addTo(map);
 
@@ -1781,11 +1781,12 @@
     markers[cafe.areaKey].push(m);
   });
 
-  // ── FILTER ──
-  let activeAreaFilter = 'all';
-  let activeBusynessFilter = 'all';
+  // ── FILTER (Multi-select) ──
+  let activeAreaFilters = new Set(); // empty = "All" selected
+  let activeBusynessFilters = new Set(); // empty = "All" selected
 
   function applyFilter() {
+    console.log('[Filter] Applying — areas:', [...activeAreaFilters], '| busyness:', [...activeBusynessFilters]);
     const cards = document.querySelectorAll('.cafe-card');
     const noResults = document.getElementById('noResults');
     let visible = 0;
@@ -1793,9 +1794,10 @@
     cards.forEach(card => {
       const area = card.dataset.area;
       const busyness = card.dataset.busyness || 'quiet';
-      const areaMatch = activeAreaFilter === 'all' || area === activeAreaFilter;
-      const busynessMatch = activeBusynessFilter === 'all' || busyness === activeBusynessFilter;
+      const areaMatch = activeAreaFilters.size === 0 || activeAreaFilters.has(area);
+      const busynessMatch = activeBusynessFilters.size === 0 || activeBusynessFilters.has(busyness);
       const show = areaMatch && busynessMatch;
+      console.log(`[Filter] ${card.querySelector('.card-name')?.textContent}: area=${area} busyness=${busyness} show=${show}`);
       card.classList.toggle('hidden', !show);
       if (show) visible++;
     });
@@ -1804,7 +1806,7 @@
 
     // UX Fix #5: Live result count badge
     const countEl = document.getElementById('resultCount');
-    const hasFilters = activeAreaFilter !== 'all' || activeBusynessFilter !== 'all';
+    const hasFilters = activeAreaFilters.size > 0 || activeBusynessFilters.size > 0;
     if (hasFilters) {
       countEl.textContent = `${visible} shown`;
       countEl.classList.add('has-filters');
@@ -1813,12 +1815,12 @@
       countEl.classList.remove('has-filters');
     }
 
-    // Show/hide markers — only area-filtered, always show all busyness levels
+    // Show/hide markers based on area filter
     const allKeys = ['syp', 'hku', 'kt'];
     allKeys.forEach(key => {
       if (markers[key]) {
         markers[key].forEach(m => {
-          if (activeAreaFilter === 'all' || key === activeAreaFilter) {
+          if (activeAreaFilters.size === 0 || activeAreaFilters.has(key)) {
             m.addTo(map);
           } else {
             m.remove();
@@ -1828,8 +1830,16 @@
     });
 
     // Re-center map based on area filter
-    if (activeAreaFilter !== 'all') {
-      const filterCafes = cafes.filter(c => c.areaKey === activeAreaFilter);
+    if (activeAreaFilters.size === 1) {
+      const selectedArea = [...activeAreaFilters][0];
+      const filterCafes = cafes.filter(c => c.areaKey === selectedArea);
+      if (filterCafes.length) {
+        const bounds = L.latLngBounds(filterCafes.map(c => [c.lat, c.lng]));
+        map.fitBounds(bounds, { padding: [50, 50] });
+      }
+    } else if (activeAreaFilters.size > 1) {
+      // Multiple areas selected — show all selected markers
+      const filterCafes = cafes.filter(c => activeAreaFilters.has(c.areaKey));
       if (filterCafes.length) {
         const bounds = L.latLngBounds(filterCafes.map(c => [c.lat, c.lng]));
         map.fitBounds(bounds, { padding: [50, 50] });
@@ -1839,22 +1849,58 @@
     }
   }
 
-  // Area filter buttons
+  // Area filter buttons (multi-select)
   document.querySelectorAll('[data-filter]').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      activeAreaFilter = btn.dataset.filter;
+      const filterValue = btn.dataset.filter;
+      console.log('[Filter] Area button clicked:', filterValue);
+      if (filterValue === 'all') {
+        // "All" clears all area selections
+        activeAreaFilters.clear();
+        document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active'); // "All" stays active
+      } else {
+        // Toggle this area
+        if (activeAreaFilters.has(filterValue)) {
+          activeAreaFilters.delete(filterValue);
+          btn.classList.remove('active');
+        } else {
+          activeAreaFilters.add(filterValue);
+          btn.classList.add('active');
+        }
+        // Deactivate "All" button if any area is selected
+        document.querySelector('[data-filter="all"]').classList.remove('active');
+        // If no areas selected, re-activate "All"
+        if (activeAreaFilters.size === 0) {
+          document.querySelector('[data-filter="all"]').classList.add('active');
+        }
+      }
       applyFilter();
     });
   });
 
-  // Busyness filter buttons
+  // Busyness filter buttons (multi-select)
   document.querySelectorAll('[data-busyness-filter]').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('[data-busyness-filter]').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      activeBusynessFilter = btn.getAttribute('data-busyness-filter');
+      const filterValue = btn.dataset.busynessFilter;
+      console.log('[Filter] Busyness button clicked:', filterValue);
+      if (filterValue === 'all') {
+        activeBusynessFilters.clear();
+        document.querySelectorAll('[data-busyness-filter]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      } else {
+        if (activeBusynessFilters.has(filterValue)) {
+          activeBusynessFilters.delete(filterValue);
+          btn.classList.remove('active');
+        } else {
+          activeBusynessFilters.add(filterValue);
+          btn.classList.add('active');
+        }
+        document.querySelector('[data-busyness-filter="all"]').classList.remove('active');
+        if (activeBusynessFilters.size === 0) {
+          document.querySelector('[data-busyness-filter="all"]').classList.add('active');
+        }
+      }
       applyFilter();
     });
   });
