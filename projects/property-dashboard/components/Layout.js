@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { href: '/', label: 'Dashboard', icon: '📊' },
   { href: '/properties', label: 'Properties', icon: '🏠' },
   { href: '/tenants', label: 'Tenants', icon: '👤' },
+  { href: '/emails', label: 'Emails', icon: '📧' },
   { href: '/payments', label: 'Payments', icon: '💳' },
   { href: '/maintenance', label: 'Maintenance', icon: '🔧' },
   { href: '/reports', label: 'Reports', icon: '📈' },
