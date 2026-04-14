@@ -21,7 +21,10 @@ MAX_ARTICLES_PER_CAT = 4  # Reduce to keep message short
 def search_brave(query, count=10):
     """Search using Brave Search API"""
     url = f"https://api.search.brave.com/res/v1/web/search?q={urllib.parse.quote(query)}&count={count}&freshness=pd"
-    req = urllib.request.Request(url, headers={"Accept": "application/json", "X-Subscription-Token": BRAVE_API_KEY})
+    req = urllib.request.Request(
+        url,
+        headers={"Accept": "application/json", "X-Subscription-Token": BRAVE_API_KEY},
+    )
     try:
         with urllib.request.urlopen(req, timeout=15) as response:
             return json.loads(response.read())
@@ -33,7 +36,7 @@ def search_brave(query, count=10):
 def send_telegram(message):
     """Send message to Telegram (handles long messages by splitting)"""
     url = f"https://api.telegram.org/bot{TG_BOT_TOKEN}/sendMessage"
-    
+
     # If message is too long, split it
     if len(message) > MAX_MSG_LEN:
         # Find a good split point (by category)
@@ -55,8 +58,12 @@ def send_telegram(message):
 def send_single(data):
     """Send single message to Telegram"""
     url = f"https://api.telegram.org/bot{TG_BOT_TOKEN}/sendMessage"
-    payload = json.dumps({"chat_id": TG_CHAT_ID, "text": data, "parse_mode": "HTML"}).encode()
-    req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
+    payload = json.dumps(
+        {"chat_id": TG_CHAT_ID, "text": data, "parse_mode": "HTML"}
+    ).encode()
+    req = urllib.request.Request(
+        url, data=payload, headers={"Content-Type": "application/json"}
+    )
     try:
         with urllib.request.urlopen(req, timeout=15) as response:
             result = json.loads(response.read())
@@ -75,7 +82,12 @@ def clean_html_text(text):
     if not text:
         return ""
     text = re.sub(r"<[^>]+>", "", text)
-    text = text.replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", '"')
+    text = (
+        text.replace("&amp;", "&")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&quot;", '"')
+    )
     text = " ".join(text.split())
     return text.strip()
 
@@ -84,44 +96,54 @@ def create_summary(title, description, max_len=MAX_ARTICLE_SUMMARY):
     """Create a meaningful summary from article description"""
     if not description:
         return ""
-    
+
     # Clean HTML
     text = clean_html_text(description)
-    
+
     if len(text) < 20:
         return ""
-    
+
     # Get first 1-2 complete sentences
-    sentences = re.split(r'(?<=[。！？.!?])[\s]+', text)
+    sentences = re.split(r"(?<=[。！？.!?])[\s]+", text)
     sentences = [s.strip() for s in sentences if s.strip()]
-    
+
     if not sentences:
         return text[:max_len] + "..." if len(text) > max_len else text
-    
+
     # First sentence
     summary = sentences[0]
-    
+
     # Add second sentence if short and fits
     if len(sentences) > 1 and len(summary) + len(sentences[1]) < max_len + 50:
         summary += " " + sentences[1][:100]
-    
+
     # Truncate if still too long
     if len(summary) > max_len:
         # Find last sentence boundary
         for punct in ["。", "！", "？", ".", "!", "?"]:
             last_punct = summary.rfind(punct)
             if last_punct > max_len * 0.5:
-                summary = summary[:last_punct + 1]
+                summary = summary[: last_punct + 1]
                 break
         else:
             summary = summary[:max_len].rstrip() + "..."
-    
+
     return summary if summary else text[:max_len]
 
 
 def is_valid_article(url, title, description):
     """Check if this is a valid article with content"""
-    skip_patterns = ["/tag/", "/topic/", "/section/", "/category/", "/archive", "/latest", "/home", "/search", "/cms/"]
+    skip_patterns = [
+        "/tag/",
+        "/topic/",
+        "/section/",
+        "/category/",
+        "/archive",
+        "/latest",
+        "/home",
+        "/search",
+        "/cms/",
+    ]
     for p in skip_patterns:
         if p in url.lower():
             return False
@@ -154,7 +176,7 @@ def process_article(r, skip_patterns, seen_titles, seen_urls):
 
     # Create meaningful summary
     summary = create_summary(title, description)
-    
+
     return {"title": title, "url": url, "summary": summary}
 
 
@@ -165,12 +187,19 @@ def main():
     categories = {
         "global": {
             "title": "🌍 GLOBAL TECH NEWS",
-            "queries": ["AI technology news today 2026", "tech industry news today", "software developer tools release today"],
+            "queries": [
+                "AI technology news today 2026",
+                "tech industry news today",
+                "software developer tools release today",
+            ],
             "min_count": 3,
         },
         "asia": {
             "title": "🌏 ASIA TECH NEWS",
-            "queries": ["Asia technology AI startup news today 2026", "Japan Korea Singapore AI tech investment funding today"],
+            "queries": [
+                "Asia technology AI startup news today 2026",
+                "Japan Korea Singapore AI tech investment funding today",
+            ],
             "min_count": 3,
         },
         "china": {
@@ -180,12 +209,27 @@ def main():
         },
         "hk": {
             "title": "🇭🇰 HK TECH NEWS",
-            "queries": ["site:hk01.com 科技 AI 新闻 今天", "site:hket.com 科技 新闻 今天", "site:unwire.hk 科技 新闻 今天"],
+            "queries": [
+                "site:hk01.com 科技 AI 新闻 今天",
+                "site:hket.com 科技 新闻 今天",
+                "site:unwire.hk 科技 新闻 今天",
+            ],
             "min_count": 3,
         },
     }
 
-    skip_patterns = ["job", "career", "hiring", "press release", "sponsored", "advertisement", "recruitment", "job opening", "salary", "vacancy"]
+    skip_patterns = [
+        "job",
+        "career",
+        "hiring",
+        "press release",
+        "sponsored",
+        "advertisement",
+        "recruitment",
+        "job opening",
+        "salary",
+        "vacancy",
+    ]
     skip_domains = ["gov.hk", "news.gov.hk", "gov.cn", "rthk.hk"]
 
     seen_titles = set()
@@ -228,7 +272,7 @@ def main():
         if articles:
             category_header = f"\n{cat_info['title']}\n━━━━━━━━━━━━━━━━━━━━━━━\n"
             send_single(category_header)
-            
+
             for i, article in enumerate(articles, 1):
                 msg = f"{i}. {article['title']}\n"
                 msg += f"   📝 {article['summary']}\n"
